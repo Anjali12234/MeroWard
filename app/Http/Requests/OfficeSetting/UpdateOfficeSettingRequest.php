@@ -1,14 +1,19 @@
 <?php
 
-namespace App\Http\Requests\Settings;
+namespace App\Http\Requests\OfficeSetting;
 
-use App\Concerns\ProfileUpdateValidationRules;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class ProfileUpdateRequest extends FormRequest
+class UpdateOfficeSettingRequest extends FormRequest
 {
-    use ProfileUpdateValidationRules;
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return false;
+    }
 
     /**
      * Get the validation rules that apply to the request.
@@ -17,6 +22,8 @@ class ProfileUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        return $this->profileRules($this->user()->id);
+        return [
+            //
+        ];
     }
 }

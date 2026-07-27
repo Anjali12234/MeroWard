@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Settings;
 
+use App\Enums\RoleEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\ProfileDeleteRequest;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
+use App\Models\Province;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,9 +21,37 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): Response
     {
+        $roles = collect(RoleEnum::cases())->map(fn($role) => [
+            'value' => $role->value,
+            'label' => $role->label(),
+        ]);
+
+        // Include database primary keys (id) along with names
+        $locationData = Province::with(['districts.localBodies'])->get()->map(function ($province) {
+            return [
+                'id' => $province->id,
+                'name' => $province->name,
+                'districts' => $province->districts->map(function ($district) {
+                    return [
+                        'id' => $district->id,
+                        'name' => $district->name,
+                        'local_bodies' => $district->localBodies->map(function ($lb) {
+                            return [
+                                'id' => $lb->id,
+                                'name' => $lb->name,
+                                'total_wards' => $lb->total_wards,
+                            ];
+                        }),
+                    ];
+                }),
+            ];
+        });
+
         return Inertia::render('settings/profile', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => $request->session()->get('status'),
+            'roles' => $roles,
+            'locationData' => $locationData,
         ]);
     }
 

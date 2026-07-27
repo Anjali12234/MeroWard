@@ -1,22 +1,16 @@
 <?php
 
-use App\Http\Controllers\Teams\TeamInvitationController;
-use App\Http\Middleware\EnsureTeamMembership;
+use App\Models\District;
+use App\Models\LocalBody;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
 Route::inertia('/', 'welcome', [
     'canRegister' => Features::enabled(Features::registration()),
 ])->name('home');
+// routes/web.php or routes/api.php
+Route::get('districts/{provinceId}', fn ($id) => District::where('province_id', $id)->get(['id', 'name']));
+Route::get('local-bodies/{districtId}', fn ($id) => LocalBody::where('district_id', $id)->get(['id', 'name']));
 
-Route::prefix('{current_team}')
-    ->middleware(['auth', 'verified', EnsureTeamMembership::class])
-    ->group(function () {
-        Route::inertia('dashboard', 'dashboard')->name('dashboard');
-    });
-
-Route::middleware(['auth'])->group(function () {
-    Route::get('invitations/{invitation}/accept', [TeamInvitationController::class, 'accept'])->name('invitations.accept');
-});
 
 require __DIR__.'/settings.php';

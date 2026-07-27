@@ -1,0 +1,15 @@
+[
+  {
+    "province": "Lumbini Province",
+    "districts": [
+      {
+        "district": "Banke",
+        "local_bodies": [
+          { "name": "Nepalgunj Sub-Metropolitan City", "total_wards": 23 },
+          { "name": "Kohalpur Municipality", "total_wards": 15 },
+          { "name": "Khajura Rural Municipality", "total_wards": 8 }
+        ]
+      }
+    ]
+  }
+]

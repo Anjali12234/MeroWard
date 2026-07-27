@@ -32,39 +32,9 @@ export default function CreateTeamModal({ children }: PropsWithChildren) {
                 >
                     {({ errors, processing }) => (
                         <>
-                            <DialogHeader>
-                                <DialogTitle>Create a new team</DialogTitle>
-                                <DialogDescription>
-                                    Create a new team to collaborate with
-                                    others.
-                                </DialogDescription>
-                            </DialogHeader>
+                          
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="name">Team name</Label>
-                                <Input
-                                    id="name"
-                                    name="name"
-                                    data-test="create-team-name"
-                                    placeholder="My team"
-                                    required
-                                />
-                                <InputError message={errors.name} />
-                            </div>
-
-                            <DialogFooter className="gap-2">
-                                <DialogClose asChild>
-                                    <Button variant="secondary">Cancel</Button>
-                                </DialogClose>
-
-                                <Button
-                                    type="submit"
-                                    data-test="create-team-submit"
-                                    disabled={processing}
-                                >
-                                    Create team
-                                </Button>
-                            </DialogFooter>
+                           
                         </>
                     )}
                 </Form>

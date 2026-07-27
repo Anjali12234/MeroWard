@@ -77,23 +77,9 @@ export function TeamSwitcher({ inHeader = false }: TeamSwitcherProps) {
                                 : 'grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden'
                         }
                     >
-                        <span
-                            className={
-                                inHeader
-                                    ? 'max-w-[120px] truncate font-medium'
-                                    : 'truncate font-semibold'
-                            }
-                        >
-                            {currentTeam?.name ?? 'Select team'}
-                        </span>
+                        
                     </div>
-                    <ChevronsUpDown
-                        className={
-                            inHeader
-                                ? 'size-4 opacity-50'
-                                : 'ml-auto group-data-[collapsible=icon]:hidden'
-                        }
-                    />
+                    
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent

@@ -34,7 +34,7 @@ import { UserMenuContent } from '@/components/user-menu-content';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useInitials } from '@/hooks/use-initials';
 import { cn, toUrl } from '@/lib/utils';
-import { dashboard } from '@/routes';
+import { dashboard } from '@/routes/admin';
 import type { BreadcrumbItem, NavItem } from '@/types';
 
 type Props = {
@@ -42,16 +42,7 @@ type Props = {
 };
 
 const rightNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: Folder,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
-    },
+   
 ];
 
 const activeItemStyles =
@@ -62,12 +53,11 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
     const { auth, currentTeam } = page.props;
     const getInitials = useInitials();
     const { isCurrentUrl, whenCurrentUrl } = useCurrentUrl();
-    const dashboardUrl = currentTeam ? dashboard(currentTeam.slug) : '/';
 
     const mainNavItems: NavItem[] = [
         {
             title: 'Dashboard',
-            href: dashboardUrl,
+            href: dashboard(),
             icon: LayoutGrid,
         },
     ];
@@ -138,7 +128,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                     </div>
 
                     <Link
-                        href={dashboardUrl}
+                        href={dashboard()}
                         prefetch
                         className="flex items-center space-x-2"
                     >
