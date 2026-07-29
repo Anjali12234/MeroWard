@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Building2Icon, FolderGit2, LayoutGrid } from 'lucide-react';
+import { BookOpen, Building2Icon, FolderGit2, LayoutGrid, User } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -16,6 +16,7 @@ import {
 import { dashboard } from '@/routes/admin';
 import type { NavItem } from '@/types';
 import { index } from '@/routes/admin/office-setting';
+import citizen from '@/routes/admin/citizen';
 
 export function AppSidebar() {
     const page = usePage();
@@ -32,6 +33,11 @@ export function AppSidebar() {
             href: index(),
             icon: Building2Icon
         },
+        // {
+        //     title: "Citizen",
+        //     href: citizen.index(),
+        //     icon: User
+        // },
     ];
 
     const footerNavItems: NavItem[] = [

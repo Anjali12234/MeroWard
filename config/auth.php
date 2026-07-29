@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Citizen;
+use App\Models\Customer;
 use App\Models\User;
 
 return [
@@ -42,6 +44,10 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'citizen' => [
+            'driver' => 'session',
+            'provider' => 'citizens',
+        ],
     ],
 
     /*
@@ -65,6 +71,10 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', User::class),
+        ],
+        'citizens' => [
+            'driver' => 'eloquent',
+            'model' => env('AUTH_MODEL', Citizen::class),
         ],
 
         // 'users' => [

@@ -14,11 +14,12 @@ class LoginResponse implements LoginResponseContract
    
         public function toResponse($request)
     {
-        $user = Auth::user();
+       $user = Auth::user();
 
-        return match ($user->role) {
-            'admin' => redirect()->intended('admin/dashboard'),
-            default => redirect()->intended('/'),
-        };
+        if ($user) {
+            return redirect()->intended('admin/dashboard');
+        }
+
+        return redirect()->intended('/');
     }
 }

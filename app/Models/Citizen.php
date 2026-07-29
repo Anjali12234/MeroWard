@@ -10,27 +10,26 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
+class Citizen extends Authenticatable
 {
-    use HasFactory, Notifiable, HasRoles;
+   use HasFactory, Notifiable, HasRoles;
 
     protected $fillable = [
-        'name',
+        'user_name',
         'email',
         'password',
-        'role',
-        'last_login_at',
+        'whatsapp_number',
+        'phone_number',
         'province_id',
         'district_id',
         'local_body_id',
+        'status',
         'ward',
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
-        'role',
-        'last_login_at',
     ];
 
     protected function casts(): array
@@ -38,7 +37,6 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'last_login_at' => 'datetime',
         ];
     }
 }

@@ -2,7 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\OfficeSetting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -36,15 +38,19 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $user = $request->user();
-
+        $officeSetting = OfficeSetting::first();
         return [
             ...parent::share($request),
             'name' => config('app.name'),
+            'officeSetting' => $officeSetting ? [
+                'name' => $officeSetting->office_name, // Adjust column name if different
+            ] : null,
             'auth' => [
                 'user' => $user,
+                'citizen' => Auth::guard('citizen')->user(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
-            
+
         ];
     }
 }
