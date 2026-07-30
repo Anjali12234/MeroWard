@@ -20,6 +20,10 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->prefix('admin')
                 ->name('admin.')
                 ->group(base_path('routes/admin.php'));
+                Route::middleware(["citizen", "auth"])
+                ->prefix('citizen')
+                ->name('citizen.')
+                ->group(base_path('routes/citizen.php'));
         }
     )
     ->withMiddleware(function (Middleware $middleware) {

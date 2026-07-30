@@ -25,6 +25,10 @@ class OfficeSetting extends Model
         'instagram',
         'youtube',
         'tiktok',
+         'province_id',
+        'district_id',
+        'local_body_id',
+        'ward',
     ];
 
     public function officeLogo(): Attribute

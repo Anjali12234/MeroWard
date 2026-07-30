@@ -33,11 +33,11 @@ export function AppSidebar() {
             href: index(),
             icon: Building2Icon
         },
-        // {
-        //     title: "Citizen",
-        //     href: citizen.index(),
-        //     icon: User
-        // },
+        {
+            title: "Citizen",
+            href: citizen.index(),
+            icon: User
+        },
     ];
 
     const footerNavItems: NavItem[] = [

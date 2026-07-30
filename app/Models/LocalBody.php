@@ -13,5 +13,9 @@ class LocalBody extends Model
     {
         return $this->belongsTo(District::class);
     }
+      public function citizens()
+    {
+        return $this->hasMany(Citizen::class);
+    }
 
 }

@@ -13,5 +13,9 @@ export type OfficeSetting = {
     instagram: string,
     youtube: string,
     tiktok: string,
+     province_id: string,
+    district_id: string,
+    local_body_id: string,
+    ward: string,
 
 }

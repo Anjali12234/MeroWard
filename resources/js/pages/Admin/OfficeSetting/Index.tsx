@@ -1,25 +1,42 @@
-
+import { useState, useEffect } from 'react'
 import { Head, Form } from "@inertiajs/react"
 import AppLayout from "@/layouts/app-layout"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeft, Building2, FacebookIcon, Image as ImageIcon, InstagramIcon, MapIcon, MapPin, MailIcon, Phone, TwitterIcon, YoutubeIcon, Music2Icon, UploadCloud, Save } from "lucide-react"
-import { type BreadcrumbItem } from "@/types"
+import { 
+  ArrowLeft, Building2, FacebookIcon, Image as ImageIcon, 
+  InstagramIcon, MapIcon, MapPin, MailIcon, Phone, TwitterIcon, 
+  YoutubeIcon, Music2Icon, UploadCloud, Save, Navigation 
+} from "lucide-react"
 import { OfficeSetting } from "@/types/Admin/OfficeSetting"
 import { index, store } from "@/routes/admin/office-setting"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Separator } from "@/components/ui/separator"
 import toast from "react-hot-toast"
 
-const breadcrumbs: BreadcrumbItem[] = [
-  { title: "Office Settings", href: index().url },
-  { title: "Create/Edit", href: "#" },
-]
+// Location Data Interfaces
+interface LocalBody {
+  id: number;
+  name: string;
+  total_wards: number;
+}
+
+interface District {
+  id: number;
+  name: string;
+  local_bodies: LocalBody[];
+}
+
+interface ProvinceData {
+  id: number;
+  name: string;
+  districts: District[];
+}
 
 interface officeSettingProps {
   officeSetting: OfficeSetting;
+  locationData?: ProvinceData[];
 }
 
 // Reusable Input Field Component
@@ -50,7 +67,7 @@ const FormInputField = ({ name, label, icon: Icon, type = "text", placeholder, d
 
 // Reusable Image Upload Component
 const ImageUploadField = ({ name, label, desc, officeSetting, errors }: any) => {
-  const imageUrl = officeSetting?.[name];
+  const imageUrl = officeSetting?.[name as keyof OfficeSetting];
 
   return (
     <div className="space-y-3 group">
@@ -71,7 +88,7 @@ const ImageUploadField = ({ name, label, desc, officeSetting, errors }: any) => 
           {imageUrl ? (
             <div className="relative w-full aspect-video mb-4 rounded-lg overflow-hidden shadow-sm ring-1 ring-slate-200">
               <img
-                src={imageUrl}
+                src={String(imageUrl)}
                 alt={label}
                 className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
               />
@@ -103,11 +120,87 @@ const ImageUploadField = ({ name, label, desc, officeSetting, errors }: any) => 
   );
 }
 
-export default function OfficeSettingCreate({ officeSetting }: officeSettingProps) {
-  const handleCancel = () => window.history.back()
+export default function OfficeSettingCreate({ officeSetting, locationData = [] }: officeSettingProps) {
+  const handleCancel = () => window.history.back();
+
+  // --- Location Selection States ---
+  const [selectedProvinceId, setSelectedProvinceId] = useState<string>(
+    officeSetting?.province_id ? String(officeSetting.province_id) : ''
+  );
+  const [selectedDistrictId, setSelectedDistrictId] = useState<string>(
+    officeSetting?.district_id ? String(officeSetting.district_id) : ''
+  );
+  const [selectedLocalBodyId, setSelectedLocalBodyId] = useState<string>(
+    officeSetting?.local_body_id ? String(officeSetting.local_body_id) : ''
+  );
+  const [selectedWard, setSelectedWard] = useState<string>(
+    officeSetting?.ward ? String(officeSetting.ward) : ''
+  );
+
+  // --- Cascading Options Hydration ---
+  const [districts, setDistricts] = useState<District[]>(() => {
+    if (officeSetting?.province_id && locationData.length > 0) {
+      const foundProv = locationData.find((p) => p.id === Number(officeSetting.province_id));
+      return foundProv ? foundProv.districts : [];
+    }
+    return [];
+  });
+
+  const [localBodies, setLocalBodies] = useState<LocalBody[]>(() => {
+    if (officeSetting?.province_id && officeSetting?.district_id && locationData.length > 0) {
+      const foundProv = locationData.find((p) => p.id === Number(officeSetting.province_id));
+      const foundDist = foundProv?.districts.find((d) => d.id === Number(officeSetting.district_id));
+      return foundDist ? foundDist.local_bodies : [];
+    }
+    return [];
+  });
+
+  const [availableWards, setAvailableWards] = useState<number[]>(() => {
+    if (officeSetting?.province_id && officeSetting?.district_id && officeSetting?.local_body_id && locationData.length > 0) {
+      const foundProv = locationData.find((p) => p.id === Number(officeSetting.province_id));
+      const foundDist = foundProv?.districts.find((d) => d.id === Number(officeSetting.district_id));
+      const foundLb = foundDist?.local_bodies.find((lb) => lb.id === Number(officeSetting.local_body_id));
+      if (foundLb?.total_wards) {
+        return Array.from({ length: foundLb.total_wards }, (_, i) => i + 1);
+      }
+    }
+    return [];
+  });
+
+  // --- Cascading Effect Handlers ---
+  useEffect(() => {
+    if (selectedProvinceId) {
+      const foundProv = locationData.find((p) => p.id === Number(selectedProvinceId));
+      setDistricts(foundProv ? foundProv.districts : []);
+    } else {
+      setDistricts([]);
+    }
+  }, [selectedProvinceId, locationData]);
+
+  useEffect(() => {
+    if (selectedDistrictId) {
+      const foundDist = districts.find((d) => d.id === Number(selectedDistrictId));
+      setLocalBodies(foundDist ? foundDist.local_bodies : []);
+    } else {
+      setLocalBodies([]);
+    }
+  }, [selectedDistrictId, districts]);
+
+  useEffect(() => {
+    if (selectedLocalBodyId) {
+      const foundLb = localBodies.find((lb) => lb.id === Number(selectedLocalBodyId));
+      if (foundLb?.total_wards) {
+        setAvailableWards(Array.from({ length: foundLb.total_wards }, (_, i) => i + 1));
+      } else {
+        setAvailableWards([]);
+      }
+    } else {
+      setAvailableWards([]);
+    }
+  }, [selectedLocalBodyId, localBodies]);
 
   return (
-    <AppLayout breadcrumbs={breadcrumbs}>
+    <>
       <Head title="Office Settings" />
 
       <div className="min-h-full bg-slate-50/50 p-6 md:p-8">
@@ -221,6 +314,125 @@ export default function OfficeSettingCreate({ officeSetting }: officeSettingProp
                   </CardContent>
                 </Card>
 
+                {/* Location Information Card */}
+                <Card className="border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-300">
+                  <CardHeader className="border-b border-slate-100 bg-white/50 pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-emerald-50 rounded-lg">
+                        <Navigation className="h-5 w-5 text-emerald-600" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg font-semibold text-slate-800">Administrative Location</CardTitle>
+                        <CardDescription>Select the administrative region and municipality/local body details.</CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Province Dropdown */}
+                    <div className="space-y-2">
+                      <Label htmlFor="province_id" className="text-sm font-medium text-slate-700">Province</Label>
+                      <select
+                        id="province_id"
+                        name="province_id"
+                        value={selectedProvinceId}
+                        onChange={(e) => {
+                          setSelectedProvinceId(e.target.value);
+                          setSelectedDistrictId('');
+                          setSelectedLocalBodyId('');
+                          setSelectedWard('');
+                        }}
+                        className="h-11 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                      >
+                        <option value="">Select Province</option>
+                        {locationData.map((item) => (
+                          <option key={item.id} value={item.id}>
+                            {item.name}
+                          </option>
+                        ))}
+                      </select>
+                      {errors?.province_id && (
+                        <p className="text-red-500 text-xs mt-1 font-medium">{errors.province_id}</p>
+                      )}
+                    </div>
+
+                    {/* District Dropdown */}
+                    <div className="space-y-2">
+                      <Label htmlFor="district_id" className="text-sm font-medium text-slate-700">District</Label>
+                      <select
+                        id="district_id"
+                        name="district_id"
+                        value={selectedDistrictId}
+                        disabled={!selectedProvinceId || districts.length === 0}
+                        onChange={(e) => {
+                          setSelectedDistrictId(e.target.value);
+                          setSelectedLocalBodyId('');
+                          setSelectedWard('');
+                        }}
+                        className="h-11 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:bg-slate-100 disabled:opacity-60"
+                      >
+                        <option value="">Select District</option>
+                        {districts.map((d) => (
+                          <option key={d.id} value={d.id}>
+                            {d.name}
+                          </option>
+                        ))}
+                      </select>
+                      {errors?.district_id && (
+                        <p className="text-red-500 text-xs mt-1 font-medium">{errors.district_id}</p>
+                      )}
+                    </div>
+
+                    {/* Local Body Dropdown */}
+                    <div className="space-y-2">
+                      <Label htmlFor="local_body_id" className="text-sm font-medium text-slate-700">Local Body</Label>
+                      <select
+                        id="local_body_id"
+                        name="local_body_id"
+                        value={selectedLocalBodyId}
+                        disabled={!selectedDistrictId || localBodies.length === 0}
+                        onChange={(e) => {
+                          setSelectedLocalBodyId(e.target.value);
+                          setSelectedWard('');
+                        }}
+                        className="h-11 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:bg-slate-100 disabled:opacity-60"
+                      >
+                        <option value="">Select Local Body</option>
+                        {localBodies.map((lb) => (
+                          <option key={lb.id} value={lb.id}>
+                            {lb.name}
+                          </option>
+                        ))}
+                      </select>
+                      {errors?.local_body_id && (
+                        <p className="text-red-500 text-xs mt-1 font-medium">{errors.local_body_id}</p>
+                      )}
+                    </div>
+
+                    {/* Ward Dropdown */}
+                    <div className="space-y-2">
+                      <Label htmlFor="ward" className="text-sm font-medium text-slate-700">Ward No.</Label>
+                      <select
+                        id="ward"
+                        name="ward"
+                        value={selectedWard}
+                        disabled={!selectedLocalBodyId || availableWards.length === 0}
+                        onChange={(e) => setSelectedWard(e.target.value)}
+                        className="h-11 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:bg-slate-100 disabled:opacity-60"
+                      >
+                        <option value="">Select Ward</option>
+                        {availableWards.map((wardNo) => (
+                          <option key={wardNo} value={wardNo}>
+                            Ward {wardNo}
+                          </option>
+                        ))}
+                      </select>
+                      {errors?.ward && (
+                        <p className="text-red-500 text-xs mt-1 font-medium">{errors.ward}</p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+
                 {/* Media & Branding Card */}
                 <Card className="border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-300">
                   <CardHeader className="border-b border-slate-100 bg-white/50 pb-4">
@@ -239,7 +451,6 @@ export default function OfficeSettingCreate({ officeSetting }: officeSettingProp
                       {[
                         { name: 'office_logo', label: 'Office Logo', desc: 'Recommended: 200x200px (Square)' },
                         { name: 'office_cover', label: 'Cover Image', desc: 'Recommended: 1920x600px (Wide)' },
-                      
                       ].map((field) => (
                         <ImageUploadField
                           key={field.name}
@@ -289,7 +500,7 @@ export default function OfficeSettingCreate({ officeSetting }: officeSettingProp
 
                 {/* Action Bar */}
                 <div className="sticky bottom-4 z-10 mx-auto max-w-5xl">
-                  <div className=" gap-3 ml-auto">
+                  <div className="gap-3 ml-auto">
                     <Button
                       type="submit"
                       className="bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/20 min-w-[120px]"
@@ -304,6 +515,18 @@ export default function OfficeSettingCreate({ officeSetting }: officeSettingProp
           </Form>
         </div>
       </div>
-    </AppLayout>
+    </>
   )
 }
+
+// Attach persistent layout
+OfficeSettingCreate.layout = (page: React.ReactNode) => (
+  <AppLayout
+    breadcrumbs={[
+      { title: "Office Settings", href: index().url },
+      { title: "Create/Edit", href: "#" },
+    ]}
+  >
+    {page}
+  </AppLayout>
+);

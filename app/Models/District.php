@@ -11,4 +11,8 @@ class District extends Model
     {
         return $this->hasMany(LocalBody::class);
     }
+      public function citizens()
+    {
+        return $this->hasMany(Citizen::class);
+    }
 }

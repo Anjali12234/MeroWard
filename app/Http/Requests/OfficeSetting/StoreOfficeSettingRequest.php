@@ -29,6 +29,10 @@ class StoreOfficeSettingRequest extends FormRequest
             'instagram' => ['nullable', 'string'],
             'youtube' => ['nullable', 'string'],
             'tiktok' => ['nullable', 'string'],
+             'province_id' => ['required', 'exists:provinces,id'],
+            'district_id' => ['required', 'exists:districts,id'],
+            'local_body_id' => ['required', 'exists:local_bodies,id'],
+            'ward' => ['required', 'string', 'max:255'],
         ];
     }
 }

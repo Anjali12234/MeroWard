@@ -21,12 +21,12 @@ interface DataTableProps<TData, TValue> {
 }
 
 export function DataTable<TData, TValue>({
-    columns,
-    data,
+    columns = [],
+    data = [],
 }: DataTableProps<TData, TValue>) {
     const table = useReactTable({
-        data,
-        columns,
+        data: data ?? [],       // 👈 Fix: Ensures data is never undefined
+        columns: columns ?? [], // 👈 Fix: Fallback for safety
         getCoreRowModel: getCoreRowModel(),
     })
 

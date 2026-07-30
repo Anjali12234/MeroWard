@@ -11,7 +11,8 @@ class CitizenController extends Controller
 {
     public function index()
     {
-        $citizens = Citizen::all();
+
+        $citizens = Citizen::latest()->paginate(10);
         return Inertia::render('Admin/Citizen/Index', [
             'citizen' => $citizens
         ]);
@@ -24,7 +25,8 @@ class CitizenController extends Controller
     }
     public function show(Citizen $citizen)
     {
-        return Inertia::render('Admin/citizen/Show', [
+        $citizen->load(['province', 'district', 'localBody']);
+        return Inertia::render('Admin/Citizen/Show', [
             'citizen' => $citizen,
         ]);
     }

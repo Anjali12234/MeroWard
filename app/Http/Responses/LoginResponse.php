@@ -11,15 +11,15 @@ use Symfony\Component\HttpFoundation\Response;
 
 class LoginResponse implements LoginResponseContract
 {
-   
-        public function toResponse($request)
+
+    public function toResponse($request)
     {
-       $user = Auth::user();
+        $user = Auth::user();
 
         if ($user) {
             return redirect()->intended('admin/dashboard');
         }
 
-        return redirect()->intended('/');
+        
     }
 }
