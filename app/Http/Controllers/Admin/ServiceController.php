@@ -18,11 +18,13 @@ class ServiceController extends Controller
 {
     public function index()
     {
-        $services = Service::latest()->paginate(10);
+        $services = Service::with('employees')->latest()->paginate(10);
+
         return Inertia::render('Admin/Service/Index', [
             'service' => $services
         ]);
     }
+
     public function create()
     {
         $employees = Employee::all();
@@ -30,47 +32,60 @@ class ServiceController extends Controller
             'employees' => $employees
         ]);
     }
+
     public function store(StoreServiceRequest $request)
     {
         $officeSetting = OfficeSetting::first();
         $validated = $request->validated();
-
-        $service = Service::create([
-            'service_name'       => $validated['service_name'],
-            'required_documents' => $validated['required_documents'],
-            'time'               => $validated['time'],
-            'price'              => $validated['price'],
-            'ward_no'            => $officeSetting?->ward,
+        $employeeIds = $validated['employee_id'];
+        unset($validated['employee_id']);
+        $service = Service::create($validated + [
+            'ward_no' => $officeSetting?->ward,
         ]);
 
-        // Attach selected employees to pivot table
-        $service->employees()->sync($validated['employee_ids']);
+        $service->employees()->sync($employeeIds);
 
-        return to_route('admin.service.index')->with('success', 'Service Created Successfully');
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => __('ServiceCreated.'),
+        ]);
+
+        return to_route('admin.service.index');
     }
+
     public function show(Service $service)
     {
+        $service->load('employees');
         return Inertia::render('Admin/Service/Show', [
-            'service' => $service,
+            'service' => $service
         ]);
     }
+
     public function edit(Service $service)
     {
         $employees = Employee::all();
 
-        return Inertia::render('Admin/Service/Create', [
+        return Inertia::render('Admin/Service/Edit', [
             'employees' => $employees,
-            'service'   => $service->load('employees'), // Eager load pivot relationship
+            'service' => $service,
         ]);
     }
-    public function update(Request $request, Service $service)
-    {
-        // Make sure you update $service, not call Service::create()
-        $service->update($request->validated());
-        $service->employees()->sync($request->employee_ids);
 
-        return redirect()->back();
+    public function update(UpdateServiceRequest $request, Service $service)
+    {
+        $validated = $request->validated();
+        $serviceData = collect($validated)->except('employee_id')->all();
+        $service->update($serviceData);
+        if (isset($validated['employee_id'])) {
+            $service->employees()->sync($validated['employee_id']);
+        } else {
+            $service->employees()->detach();
+        }
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Service Updated.')]);
+        return to_route('admin.service.index');
     }
+
     public function destroy(Service $service)
     {
         $imagePath = $service->getRawOriginal('image');
@@ -78,6 +93,7 @@ class ServiceController extends Controller
             Storage::disk('public')->delete($imagePath);
         }
         $service->delete();
-        return to_route('admin.service.index')->with('success', 'Service Deleted Successfully');
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Service Deleted.')]);
+        return back();
     }
 }

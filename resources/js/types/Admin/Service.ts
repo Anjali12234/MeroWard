@@ -11,6 +11,6 @@ export type Service = {
     time: string;
     ward_no: string;
     price: string;
-    employees?: Employee[];
-    employee_ids?: number[];
+
+    employees?: Employee[]; // ✅ plural
 };

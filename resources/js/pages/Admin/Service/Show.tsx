@@ -3,24 +3,24 @@ import AppLayout from "@/layouts/app-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Edit, Image as ImageIcon, Mail, Phone, User, ShieldCheck, UserCheck } from "lucide-react";
-import { Employee } from "@/types/Admin/Employee";
-import { edit, index } from "@/routes/admin/employee";
+import { ArrowLeft, Edit, Image as ImageIcon, Mail, Phone, User, ShieldCheck, UserCheck, Server } from "lucide-react";
 
-interface EmployeeShowProps {
-    employee: Employee;
+import { edit, index } from "@/routes/admin/employee";
+import { Service } from "@/types/Admin/Service";
+
+
+interface ShowProps {
+    service: Service;
 }
 
-export default function EmployeeShow({ employee }: EmployeeShowProps) {
+export default function Show({ service }: EmployeeShowProps) {
     const handleBack = () => window.history.back();
 
-    // Helper to determine status display
-    const isEmp = Number(employee.is_employee) === 1;
-    const roleLabel = isEmp ? "Employee" : "Janpratinidhi";
+
 
     return (
         <>
-            <Head title={`Employee - ${employee?.name ?? "Details"}`} />
+            <Head title={`Service - ${service?.name ?? "Details"}`} />
             <div className="flex h-full flex-1 flex-col gap-6 p-4">
                 {/* Header */}
                 <div className="flex items-center justify-between">
@@ -34,28 +34,11 @@ export default function EmployeeShow({ employee }: EmployeeShowProps) {
                             <ArrowLeft className="h-4 w-4" />
                             Back
                         </Button>
-                        <div>
-                            <div className="flex items-center gap-3">
-                                <h1 className="text-2xl font-bold tracking-tight">Employee Details</h1>
-                                {/* Status Badge in Header */}
-                                <Badge 
-                                    className={
-                                        isEmp 
-                                            ? "bg-emerald-100 text-emerald-800 border-emerald-200 hover:bg-emerald-100 font-medium text-xs px-2.5 py-0.5" 
-                                            : "bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-100 font-medium text-xs px-2.5 py-0.5"
-                                    }
-                                >
-                                    {roleLabel}
-                                </Badge>
-                            </div>
-                            <p className="text-muted-foreground">
-                                View employee information
-                            </p>
-                        </div>
+
                     </div>
                     <div className="flex gap-2">
                         <Button variant="outline" asChild className="flex items-center gap-2">
-                            <Link href={edit(employee.id).url}>
+                            <Link href={edit(service.id).url}>
                                 <Edit className="h-4 w-4" />
                                 Edit
                             </Link>
@@ -65,7 +48,7 @@ export default function EmployeeShow({ employee }: EmployeeShowProps) {
 
                 {/* Content Layout */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    
+
                     {/* Left Column: Image Card */}
                     <div className="lg:col-span-1">
                         <Card className="overflow-hidden">
@@ -100,7 +83,7 @@ export default function EmployeeShow({ employee }: EmployeeShowProps) {
                             <CardHeader>
                                 <CardTitle className="text-base font-semibold text-slate-800">Information</CardTitle>
                             </CardHeader>
-                            
+
                             <CardContent className="space-y-6">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                     <div>

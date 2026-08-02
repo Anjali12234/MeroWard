@@ -3,12 +3,11 @@
 namespace App\Helpers;
 
 use App\Models\OfficeSetting;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Arr;
 
 class Helper
 {
-
     public function deleteFile($filePath, $disk = 'public')
     {
         if (Storage::disk($disk)->exists($filePath)) {
@@ -21,6 +20,7 @@ class Helper
         return filter_var($link, FILTER_VALIDATE_URL);
     }
 }
+
 if (!function_exists('deleteFile')) {
     function deleteFile(string $filePath): void
     {
@@ -28,7 +28,6 @@ if (!function_exists('deleteFile')) {
             Storage::disk('public')->delete($filePath);
         }
     }
-
 
     if (!function_exists('checkFileExists')) {
         function checkFileExists(array $requestFile, array $dataToCheck): array
@@ -45,5 +44,4 @@ if (!function_exists('deleteFile')) {
             return Arr::undot($requestFile);
         }
     }
-
 }

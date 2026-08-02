@@ -10,11 +10,8 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('employee_service', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('service_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('employee_id')->constrained()->cascadeOnDelete();
-            $table->timestamps();
+        Schema::table('services', function (Blueprint $table) {
+            $table->foreignId('employee_id')->nullable()->constrained()->onDelete('cascade');
         });
     }
 
@@ -23,6 +20,9 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('employee_service');
+        Schema::table('services', function (Blueprint $table) {
+            $table->dropForeign(['employee_id']);
+            $table->dropColumn('employee_id');
+        });
     }
 };

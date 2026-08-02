@@ -12,7 +12,7 @@ export const columns: ColumnDef<Service>[] = [
         header: "Id",
         cell: ({ row }) => row.index + 1,
     },
-   
+
     {
         accessorKey: "service_name",
         header: "Name",
@@ -22,14 +22,23 @@ export const columns: ColumnDef<Service>[] = [
         header: "Time Required",
     },
     {
-        accessorKey: "employee_id",
+        id: "employees",
         header: "Responsible Person",
+        cell: ({ row }) => {
+
+
+            return (
+                <>
+                    {row.original.employees?.map((employee) => employee.name).join(", ") || "-"}
+                </>
+            );
+        },
     },
     {
         accessorKey: "price",
         header: "Price Required",
     },
-    
+
     {
         id: "actions",
         header: "Actions",

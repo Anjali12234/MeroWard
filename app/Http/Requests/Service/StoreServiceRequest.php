@@ -14,14 +14,13 @@ class StoreServiceRequest extends FormRequest
 
     public function rules(): array
     {
-       return [
+        return [
             'service_name' => ['required', 'string', 'max:255'],
             'required_documents' => ['required', 'string'],
-            'employee_ids'       => ['required', 'array', 'min:1'],
-            'employee_ids.*'     => ['required', 'exists:employees,id'],
-            'time' => ['required', 'string','max:255'],
-            'price' => ['required', 'string','max:255'],
-            
+            'employee_id' => ['required', 'array'],
+            'employee_id.*' => ['exists:employees,id'],
+            'time' => ['required', 'string', 'max:255'],
+            'price' => ['required', 'string', 'max:255'],
         ];
-    }       
+    }
 }
