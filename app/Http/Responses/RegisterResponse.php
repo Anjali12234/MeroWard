@@ -17,7 +17,6 @@ class RegisterResponse implements RegisterResponseContract
 
         return match ($user->role) {
             'admin' => redirect()->intended('admin/dashboard'),
-            default => redirect()->intended('/'),
         };
     }
 }

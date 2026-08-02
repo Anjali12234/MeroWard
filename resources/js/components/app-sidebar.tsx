@@ -17,6 +17,7 @@ import { dashboard } from '@/routes/admin';
 import type { NavItem } from '@/types';
 import { index } from '@/routes/admin/office-setting';
 import citizen from '@/routes/admin/citizen';
+import employee from '@/routes/admin/employee';
 
 export function AppSidebar() {
     const page = usePage();
@@ -36,6 +37,11 @@ export function AppSidebar() {
         {
             title: "Citizen",
             href: citizen.index(),
+            icon: User
+        },
+        {
+            title: "Employee",
+            href: employee.index(),
             icon: User
         },
     ];

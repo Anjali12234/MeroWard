@@ -11,7 +11,6 @@ class CitizenController extends Controller
 {
     public function index()
     {
-
         $citizens = Citizen::latest()->paginate(10);
         return Inertia::render('Admin/Citizen/Index', [
             'citizen' => $citizens

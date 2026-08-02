@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, router } from '@inertiajs/react';
+import { Employee } from '@/types/Admin/Employee';
 
 interface ServiceItem {
     id: string;
@@ -8,6 +9,7 @@ interface ServiceItem {
     description: string;
     route: string;
 }
+
 
 export default function Welcome() {
     const services: ServiceItem[] = [
@@ -18,6 +20,7 @@ export default function Welcome() {
         { id: 'notices', icon: '🔔', title: 'Ward Notices', description: 'Archived and active, filterable stream', route: '/notices/all' },
         { id: 'archives', icon: '📁', title: 'Public Archives', description: 'Full-text searchable minutes, development plans', route: '/archives/public-minutes' },
     ];
+   
 
     // Calendar Days Mock (Matches UI)
     const calendarDays = [
