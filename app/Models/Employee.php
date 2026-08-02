@@ -29,5 +29,9 @@ class Employee extends Model
     {
         return $this->castingFile(defaultPath: 'employee', fileToDelete: $this->attributes['image'] ?? null);
     }
+    public function services()
+    {
+        return $this->hasMany(Service::class);
+    }
    
 }

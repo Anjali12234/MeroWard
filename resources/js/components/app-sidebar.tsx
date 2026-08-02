@@ -18,6 +18,7 @@ import type { NavItem } from '@/types';
 import { index } from '@/routes/admin/office-setting';
 import citizen from '@/routes/admin/citizen';
 import employee from '@/routes/admin/employee';
+import service from '@/routes/admin/service';
 
 export function AppSidebar() {
     const page = usePage();
@@ -43,6 +44,11 @@ export function AppSidebar() {
             title: "Employee",
             href: employee.index(),
             icon: User
+        },
+        {
+            title: "Services",
+            href: service.index(),
+            icon: BookOpen
         },
     ];
 

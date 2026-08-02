@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\CitizenController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\OfficeSettingController;
+use App\Http\Controllers\Admin\ServiceController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -12,3 +13,5 @@ Route::resource('office-setting', OfficeSettingController::class);
 Route::resource('citizen', CitizenController::class);
 Route::patch('citizens/{citizen}/status', [CitizenController::class, 'status'])->name('citizens.status');
 Route::resource('employee', EmployeeController::class);
+Route::resource('service', ServiceController::class)->except('update');
+Route::put('/admin/service/{service}', [ServiceController::class, 'update'])->name('admin.service.update');
