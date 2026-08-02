@@ -1,20 +1,27 @@
-import React from 'react';
-import Footer from '@/components/frontend/Footer';
+import React, { ReactNode } from 'react';
 import Header from '@/components/frontend/Header';
 import Navbar from '@/components/frontend/Navbar';
+import Footer from '@/components/frontend/Footer';
 
 interface FrontendLayoutProps {
-    children: React.ReactNode;
+    children: ReactNode;
 }
 
 export default function FrontendLayout({ children }: FrontendLayoutProps) {
     return (
-        <div className="min-h-screen bg-slate-100 font-sans text-slate-800 flex flex-col justify-between">
-            <div>
-                <Header />
-                <Navbar />
-                <main>{children}</main>
-            </div>
+        <div className="min-h-screen flex flex-col bg-slate-100 font-sans text-slate-800">
+            {/* Header Component */}
+            <Header />
+
+            {/* Sub-navigation Bar */}
+            <Navbar />
+
+            {/* Main Page Content */}
+            <main className="flex-grow">
+                {children}
+            </main>
+
+            {/* Footer Component */}
             <Footer />
         </div>
     );
