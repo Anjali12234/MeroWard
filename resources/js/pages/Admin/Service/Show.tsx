@@ -1,26 +1,25 @@
 import { Head, Link } from "@inertiajs/react";
-import AppLayout from "@/layouts/app-layout";
+import { ArrowLeft, Edit, Clock, DollarSign, FileText, Users } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Edit, Image as ImageIcon, Mail, Phone, User, ShieldCheck, UserCheck, Server } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { edit, index } from "@/routes/admin/employee";
 import { Service } from "@/types/Admin/Service";
+import { edit, index } from "@/routes/admin/service";
 
-
-interface ShowProps {
+interface ServiceShowProps {
     service: Service;
 }
 
-export default function Show({ service }: EmployeeShowProps) {
+export default function ServiceShow({ service }: ServiceShowProps) {
+    console.log(service)
     const handleBack = () => window.history.back();
-
-
 
     return (
         <>
-            <Head title={`Service - ${service?.name ?? "Details"}`} />
+            <Head title={`Service - ${service.service_name}`} />
+
             <div className="flex h-full flex-1 flex-col gap-6 p-4">
                 {/* Header */}
                 <div className="flex items-center justify-between">
@@ -35,145 +34,128 @@ export default function Show({ service }: EmployeeShowProps) {
                             Back
                         </Button>
 
+                        <div>
+                            <h1 className="text-2xl font-bold tracking-tight">
+                                Service Details
+                            </h1>
+                            <p className="text-muted-foreground">
+                                View service information
+                            </p>
+                        </div>
                     </div>
-                    <div className="flex gap-2">
-                        <Button variant="outline" asChild className="flex items-center gap-2">
-                            <Link href={edit(service.id).url}>
-                                <Edit className="h-4 w-4" />
-                                Edit
-                            </Link>
-                        </Button>
-                    </div>
+
+                    <Button asChild>
+                        <Link href={edit(service.id).url}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit
+                        </Link>
+                    </Button>
                 </div>
 
-                {/* Content Layout */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Service Information</CardTitle>
+                    </CardHeader>
 
-                    {/* Left Column: Image Card */}
-                    <div className="lg:col-span-1">
-                        <Card className="overflow-hidden">
-                            <CardHeader className="pb-3">
-                                <CardTitle className="text-base font-semibold text-slate-800 flex items-center gap-2">
-                                    <ImageIcon className="h-4 w-4 text-blue-600" />
-                                    Profile Picture
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="flex flex-col items-center justify-center p-6 bg-slate-50/50">
-                                {employee.image ? (
-                                    <div className="relative w-full aspect-square max-w-[240px] rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-white">
-                                        <img
-                                            src={employee.image}
-                                            alt={employee.name}
-                                            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                                        />
-                                    </div>
+                    <CardContent className="space-y-6">
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                            <div>
+                                <h3 className="text-sm font-medium text-muted-foreground">
+                                    Service Name
+                                </h3>
+
+                                <p className="mt-1 text-base font-semibold">
+                                    {service.service_name}
+                                </p>
+                            </div>
+
+                            <div>
+                                <h3 className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                                    <Clock className="h-4 w-4" />
+                                    Time Required
+                                </h3>
+
+                                <p className="mt-1">
+                                    {service.time}
+                                </p>
+                            </div>
+
+                            <div>
+                                <h3 className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                                    <DollarSign className="h-4 w-4" />
+                                    Price
+                                </h3>
+
+                                <p className="mt-1">
+                                    Rs. {service.price}
+                                </p>
+                            </div>
+
+                            <div>
+                                <h3 className="text-sm font-medium text-muted-foreground">
+                                    Ward No
+                                </h3>
+
+                                <p className="mt-1">
+                                    {service.ward_no}
+                                </p>
+                            </div>
+
+                        </div>
+
+                        <div className="border-t pt-5">
+                            <h3 className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                                <FileText className="h-4 w-4" />
+                                Required Documents
+                            </h3>
+
+                            <p className="mt-2 whitespace-pre-line rounded-md border p-3">
+                                {service.required_documents}
+                            </p>
+                        </div>
+
+                        <div className="border-t pt-5">
+                            <h3 className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                                <Users className="h-4 w-4" />
+                                Responsible Employees
+                            </h3>
+
+                            <div className="mt-3 flex flex-wrap gap-2">
+                                {service.employees?.length ? (
+                                    service.employees.map((employee) => (
+                                        <Badge
+                                            key={employee.id}
+                                            variant="secondary"
+                                        >
+                                            {employee.name}
+                                        </Badge>
+                                    ))
                                 ) : (
-                                    <div className="w-full aspect-square max-w-[240px] rounded-xl border-2 border-dashed border-slate-200 bg-white flex flex-col items-center justify-center gap-2 text-slate-400">
-                                        <User className="h-12 w-12 stroke-1" />
-                                        <span className="text-xs font-medium text-slate-500">No Image Available</span>
-                                    </div>
+                                    <span className="text-muted-foreground">
+                                        No employee assigned
+                                    </span>
                                 )}
-                            </CardContent>
-                        </Card>
-                    </div>
+                            </div>
+                        </div>
 
-                    {/* Right Column: Main Details */}
-                    <div className="lg:col-span-2">
-                        <Card className="h-full">
-                            <CardHeader>
-                                <CardTitle className="text-base font-semibold text-slate-800">Information</CardTitle>
-                            </CardHeader>
-
-                            <CardContent className="space-y-6">
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                    <div>
-                                        <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                                            <User className="h-3.5 w-3.5 text-slate-400" /> Full Name
-                                        </h3>
-                                        <p className="mt-1 text-base font-semibold text-slate-900">{employee.name || "N/A"}</p>
-                                    </div>
-
-                                    <div>
-                                        <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                                            <Mail className="h-3.5 w-3.5 text-slate-400" /> Email
-                                        </h3>
-                                        {employee.email ? (
-                                            <Badge className="mt-1 bg-blue-600/10 text-blue-700 hover:bg-blue-600/20 border-blue-200 font-normal text-sm px-2.5 py-0.5">
-                                                {employee.email}
-                                            </Badge>
-                                        ) : (
-                                            <p className="mt-1 text-sm text-muted-foreground">N/A</p>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-slate-100">
-                                    <div>
-                                        <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                                            <Phone className="h-3.5 w-3.5 text-slate-400" /> Phone Number
-                                        </h3>
-                                        <p className="mt-1 font-mono text-sm text-slate-800">{employee.phone || "N/A"}</p>
-                                    </div>
-
-                                    <div>
-                                        <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Designation</h3>
-                                        <p className="mt-1 text-sm font-medium text-slate-800">{employee.designation || "N/A"}</p>
-                                    </div>
-                                </div>
-
-                                {/* Type (Is Employee) & Section Row */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-slate-100">
-                                    <div>
-                                        <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                                            {isEmp ? <UserCheck className="h-3.5 w-3.5 text-slate-400" /> : <ShieldCheck className="h-3.5 w-3.5 text-slate-400" />} Category / Type
-                                        </h3>
-                                        <p className="mt-1 text-sm font-medium">
-                                            <span className={isEmp ? "text-emerald-700 font-semibold" : "text-amber-700 font-semibold"}>
-                                                {roleLabel}
-                                            </span>
-                                        </p>
-                                    </div>
-
-                                    {employee.section && (
-                                        <div>
-                                            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Section</h3>
-                                            <p className="mt-1 text-sm font-medium text-slate-800">{employee.section}</p>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {employee.position !== undefined && (
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-slate-100">
-                                        <div>
-                                            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Position Order</h3>
-                                            <p className="mt-1 text-sm font-medium text-slate-800">{employee.position}</p>
-                                        </div>
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
-                    </div>
-
-                </div>
+                    </CardContent>
+                </Card>
             </div>
         </>
     );
 }
 
-// Attach persistent layout and breadcrumbs identically to CitizenIndex
-EmployeeShow.layout = (page: React.ReactNode) => (
-    <AppLayout
-        breadcrumbs={[
-            {
-                title: "Employee",
-                href: index().url,
-            },
-            {
-                title: "View",
-                href: "#",
-            },
-        ]}
-    >
-        {page}
-    </AppLayout>
-);
+ServiceShow.layout = {
+    breadcrumbs: [
+        {
+            title: "Service",
+            href: index().url,
+        },
+        {
+            title: "View",
+            href: "#",
+        },
+    ],
+};
