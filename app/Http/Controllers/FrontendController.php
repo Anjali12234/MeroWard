@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Employee;
+use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -30,6 +31,13 @@ class FrontendController extends Controller
 
         return Inertia::render('Frontend/Employee/employee', [
             'employees' => $employees,
+        ]);
+    }
+    public function serviceList()
+    {
+        $services = Service::with('employees')->latest()->get();
+        return Inertia::render('Frontend/service',[
+            'services' => $services,
         ]);
     }
 }

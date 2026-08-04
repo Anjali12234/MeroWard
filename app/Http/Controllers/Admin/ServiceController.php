@@ -65,6 +65,9 @@ class ServiceController extends Controller
     {
         $employees = Employee::all();
 
+        // Load the attached employees relation so $service->employees exists
+        $service->load('employees');
+
         return Inertia::render('Admin/Service/Edit', [
             'employees' => $employees,
             'service' => $service,

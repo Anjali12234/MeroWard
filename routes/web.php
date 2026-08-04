@@ -11,6 +11,7 @@ use Laravel\Fortify\Features;
 
 Route::get('/', [FrontendController::class, 'index'])->name('home');
 Route::get('employee', [FrontendController::class, 'employeeList'])->name('employee');
+Route::get('service', [FrontendController::class, 'serviceList'])->name('service');
 
 // routes/web.php or routes/api.php
 Route::get('districts/{provinceId}', fn ($id) => District::where('province_id', $id)->get(['id', 'name']));

@@ -76,15 +76,26 @@ export default function EditService({ employees, service }: EmployeeProps) {
                                                 <select
                                                     id="employee_id"
                                                     name="employee_id[]"
-                                                    defaultValue={service.employees?.map((employee) => employee.id.toString())}
+                                                    defaultValue={service.employees?.map((emp) => String(emp.id)) ?? []}
                                                     multiple
                                                     className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
                                                 >
-                                                    {employees.map((employee) => (
-                                                        <option key={employee.id} value={employee.id}>
-                                                            {employee.name}
-                                                        </option>
-                                                    ))}
+                                                    {employees.map((employee) => {
+                                                        // Check if this employee is assigned to the service
+                                                        const isSelected = service.employees?.some(
+                                                            (emp) => emp.id === employee.id
+                                                        );
+
+                                                        return (
+                                                            <option
+                                                                key={employee.id}
+                                                                value={employee.id}
+                                                                selected={isSelected}
+                                                            >
+                                                                {employee.name}
+                                                            </option>
+                                                        );
+                                                    })}
                                                 </select>
 
                                                 <InputError message={errors.employee_id} />
@@ -103,22 +114,22 @@ export default function EditService({ employees, service }: EmployeeProps) {
 
                                             <div className="space-y-2">
                                                 <Label htmlFor="time">time <span className="text-red-500">*</span></Label>
-                                                <Input
-                                                    id="time"
-                                                    name="time"
-                                                    type="text"
-                                                    defaultValue={service.time}
-                                                />
+                                               <Textarea
+                                                id="time"
+                                                name="time"
+                                                defaultValue={service.time}
+                                                rows={6}
+                                            />
                                                 <InputError message={errors.time} />
                                             </div>
                                             <div className="space-y-2">
                                                 <Label htmlFor="price">Price <span className="text-red-500">*</span></Label>
-                                                <Input
-                                                    id="price"
-                                                    name="price"
-                                                    type="text"
-                                                    defaultValue={service.price}
-                                                />
+                                              <Textarea
+                                                id="price"
+                                                name="price"
+                                                defaultValue={service.price}
+                                                rows={6}
+                                            />
                                                 <InputError message={errors.price} />
                                             </div>
 
@@ -132,7 +143,7 @@ export default function EditService({ employees, service }: EmployeeProps) {
                                                 defaultValue={service.required_documents}
                                                 rows={6}
                                             />
-                                            <InputError message={errors.description} />
+                                            <InputError message={errors.required_documents} />
                                         </div>
 
 

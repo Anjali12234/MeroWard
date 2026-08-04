@@ -17,7 +17,7 @@ interface WelcomeProps {
 
 export default function Welcome({ emplyeeReps }: WelcomeProps) {
     const services: ServiceItem[] = [
-        { id: 'dastur', icon: '📄', title: 'Dastur & Fees', description: 'Rs 100 per sifarish, detailed charts', route: '/services/dastur-fees' },
+        { id: 'citizen-charter', icon: '📄', title: 'Citizen Charter', description: 'Complete detail of the services provided by the ward', route: '/service' },
         { id: 'employee', icon: '📜', title: 'Employee', description: 'View all employee of ward', route: '/employee' },
         { id: 'ward-id', icon: '🆔', title: 'My Ward ID', description: 'Create, view, and update unique ID, large profile area', route: '/ward-id/profile' },
         { id: 'civic', icon: '💬', title: 'Civic Participation', description: 'Meeting check-in form and feedback section, link to trend graph', route: '/civic/participation' },

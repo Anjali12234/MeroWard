@@ -12,4 +12,15 @@ export type Employees = {
     is_employee: boolean,
 }
 
+export type Services = {
+    id: number;
+    employee_id: string,
+    service_name: string,
+    required_documents: string,
+    time: string,
+    ward_no: string,
+    price: string,
+    
+}
+
 

@@ -100,22 +100,22 @@ export default function CreateService({ employees }: EmployeeProps) {
 
                                             <div className="space-y-2">
                                                 <Label htmlFor="time">time <span className="text-red-500">*</span></Label>
-                                                <Input
-                                                    id="time"
-                                                    name="time"
-                                                    type="text"
-                                                    placeholder="1 hour/same day"
-                                                />
+                                               <Textarea
+                                                id="time"
+                                                name="time"
+                                                placeholder="Time Required"
+                                                rows={6}
+                                            />
                                                 <InputError message={errors.time} />
                                             </div>
                                             <div className="space-y-2">
                                                 <Label htmlFor="price">Price <span className="text-red-500">*</span></Label>
-                                                <Input
-                                                    id="price"
-                                                    name="price"
-                                                    type="text"
-                                                    placeholder="price"
-                                                />
+                                               <Textarea
+                                                id="price"
+                                                name="price"
+                                                placeholder="Amount Required"
+                                                rows={6}
+                                            />
                                                 <InputError message={errors.price} />
                                             </div>
 
@@ -126,10 +126,10 @@ export default function CreateService({ employees }: EmployeeProps) {
                                             <Textarea
                                                 id="required_documents"
                                                 name="required_documents"
-                                                placeholder="required documents"
+                                                placeholder="Required documents"
                                                 rows={6}
                                             />
-                                            <InputError message={errors.description} />
+                                            <InputError message={errors.required_documents} />
                                         </div>
 
 
