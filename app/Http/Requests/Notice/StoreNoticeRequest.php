@@ -2,28 +2,24 @@
 
 namespace App\Http\Requests\Notice;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreNoticeRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'title_en'       => ['required', 'string', 'max:255'],
+            'title_ne'       => ['required', 'string', 'max:255'], // Updated to nullable
+            'slug'           => ['nullable', 'string', 'max:255', 'unique:notices,slug'],
+            'published_date' => ['required', 'date'],
+            'document' => ['required', 'array', 'min:1'],
+            'document.*' =>  ['file', 'mimes:pdf,jpg,jpeg,png,doc,docx', 'max:10240'],
         ];
     }
 }

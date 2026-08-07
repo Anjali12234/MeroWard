@@ -19,6 +19,7 @@ import { index } from '@/routes/admin/office-setting';
 import citizen from '@/routes/admin/citizen';
 import employee from '@/routes/admin/employee';
 import service from '@/routes/admin/service';
+import notice from '@/routes/admin/notice';
 
 export function AppSidebar() {
     const page = usePage();
@@ -48,6 +49,11 @@ export function AppSidebar() {
         {
             title: "Services",
             href: service.index(),
+            icon: BookOpen
+        },
+        {
+            title: "Notice",
+            href: notice.index(),
             icon: BookOpen
         },
     ];

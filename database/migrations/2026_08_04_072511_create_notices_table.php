@@ -14,11 +14,13 @@ return new class extends Migration
         Schema::create('notices', function (Blueprint $table) {
             $table->id();
             $table->string('title_en');
-            $table->string('title_ne');
+            $table->string('title_ne')->nullable();
             $table->string('slug');
-            $table->string('documents')->nullable();
             $table->string('published_date');
             $table->string('ward_id');
+            $table->string('document')->nullable();
+
+            $table->softDeletes();
             $table->timestamps();
         });
     }
