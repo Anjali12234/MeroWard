@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Employee;
+use App\Models\Notice;
 use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -38,6 +39,13 @@ class FrontendController extends Controller
         $services = Service::with('employees')->latest()->get();
         return Inertia::render('Frontend/service',[
             'services' => $services,
+        ]);
+    }
+    public function noticeList()
+    {
+        $notices = Notice::latest()->get();
+        return Inertia::render('Frontend/notice',[
+            'notices' => $notices,
         ]);
     }
 }

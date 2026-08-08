@@ -21,7 +21,7 @@ export default function Welcome({ emplyeeReps }: WelcomeProps) {
         { id: 'employee', icon: '📜', title: 'Employee', description: 'View all employee of ward', route: '/employee' },
         { id: 'ward-id', icon: '🆔', title: 'My Ward ID', description: 'Create, view, and update unique ID, large profile area', route: '/ward-id/profile' },
         { id: 'civic', icon: '💬', title: 'Civic Participation', description: 'Meeting check-in form and feedback section, link to trend graph', route: '/civic/participation' },
-        { id: 'notices', icon: '🔔', title: 'Ward Notices', description: 'Archived and active, filterable stream', route: '/notices/all' },
+        { id: 'notices', icon: '🔔', title: 'Ward Notices', description: 'Archived and active, filterable stream', route: '/notice' },
         { id: 'archives', icon: '📁', title: 'Public Archives', description: 'Full-text searchable minutes, development plans', route: '/archives/public-minutes' },
     ];
 

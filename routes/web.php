@@ -9,19 +9,22 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 
-Route::get('/', [FrontendController::class, 'index'])->name('home');
-Route::get('employee', [FrontendController::class, 'employeeList'])->name('employee');
-Route::get('service', [FrontendController::class, 'serviceList'])->name('service');
-
+Route::controller(FrontendController::class)->group(function () {
+    Route::get('/', 'index')->name('home');
+    Route::get('/employee', 'employeeList')->name('employee');
+    Route::get('/service', 'serviceList')->name('service');
+    Route::get('/notice', 'noticeList')->name('notice');
+});
 // routes/web.php or routes/api.php
 Route::get('districts/{provinceId}', fn ($id) => District::where('province_id', $id)->get(['id', 'name']));
 Route::get('local-bodies/{districtId}', fn ($id) => LocalBody::where('district_id', $id)->get(['id', 'name']));
-Route::get('citizenRegister', [AuthController::class, 'citizenRegisterPage'])->name('citizenRegister');
-Route::post('citizenRegisterStore', [AuthController::class, 'citizenRegisterStore'])
-    ->name('citizen.register.store');
-Route::post('citizenLogin', [AuthController::class, 'citizenLogin'])->name('citizenLogin');
-Route::get('citizenLogin', [AuthController::class, 'citizenLoginPage'])->name('citizenLoginPage');
 
-Route::post('citizenLogout', [AuthController::class, 'citizenLogout'])->name('citizenLogout');
+Route::controller(AuthController::class)->group(function () {
+    Route::get('/citizenRegister', 'citizenRegisterPage')->name('citizenRegister');
+    Route::post('/citizenRegisterStore', 'citizenRegisterStore')->name('citizen.register.store');
+    Route::get('/citizenLogin', 'citizenLoginPage')->name('citizenLoginPage');
+    Route::post('/citizenLogin', 'citizenLogin')->name('citizenLogin');
+    Route::post('/citizenLogout', 'citizenLogout')->name('citizenLogout');
+});
 
 require __DIR__.'/settings.php';
