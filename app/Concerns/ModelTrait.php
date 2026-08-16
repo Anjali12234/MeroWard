@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Traits;
+namespace App\Concerns;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
@@ -13,7 +14,7 @@ trait ModelTrait
     {
         return Attribute::make(
             get: function (?string $value) use ($defaultData) {
-                if (! empty($value)) {
+                if (!empty($value)) {
                     if (isUrl($value)) {
                         return $value;
                     } else {
@@ -28,7 +29,7 @@ trait ModelTrait
                 }
             },
             set: function ($value) use ($defaultPath) {
-                if (! empty($value)) {
+                if (!empty($value)) {
                     if (isUrl($value)) {
                         return $value;
                     } else {
@@ -43,9 +44,9 @@ trait ModelTrait
 
     public function scopeUserDataAccordingToWard(Builder $builder, bool $showAll = false): void
     {
-        if (! $showAll) {
-            if (! empty(auth()->user()->ward_no)) {
-                $builder->where('ward_no', auth()->user()->ward_no);
+        if (!$showAll) {
+            if (!empty(Auth::user()->ward_no)) {
+                $builder->where('ward_no', Auth::user()->ward_no);
             } else {
                 $builder->whereNull('ward_no');
             }

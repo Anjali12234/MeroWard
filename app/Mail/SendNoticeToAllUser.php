@@ -11,7 +11,7 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class SendNoticeToAllUser extends Mailable implements ShouldQueue
+class SendNoticeToAllUser extends Mailable
 {
     use Queueable, SerializesModels;
 

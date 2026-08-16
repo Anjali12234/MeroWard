@@ -39,14 +39,17 @@ class Citizen extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
     public function province()
     {
         return $this->belongsTo(Province::class);
     }
+
     public function localBody()
     {
         return $this->belongsTo(LocalBody::class);
     }
+
     public function district()
     {
         return $this->belongsTo(District::class);

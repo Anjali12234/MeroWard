@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
-use App\Traits\ModelTrait;
+use App\Concerns\ModelTrait;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 
 class UploadFile extends Model
 {
-   use ModelTrait;
+    use ModelTrait;
 
     protected $fillable = [
         'file_name',
@@ -25,8 +25,8 @@ class UploadFile extends Model
     public function url(): Attribute
     {
         return Attribute::get(
-            function (?string $value)  {
-                if (! empty($value)) {
+            function (?string $value) {
+                if (!empty($value)) {
                     if (isUrl($value)) {
                         return $value;
                     } else {
@@ -40,7 +40,6 @@ class UploadFile extends Model
                     return null;
                 }
             },
-
         );
     }
 }

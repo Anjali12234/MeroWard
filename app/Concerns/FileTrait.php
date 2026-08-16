@@ -8,10 +8,9 @@ use Illuminate\Support\Facades\Storage;
 
 trait FileTrait
 {
-     public function castingFile(string $defaultData = '', string $defaultPath = '', ?string $fileToDelete = null): Attribute
+    public function castingFile(string $defaultData = '', string $defaultPath = '', ?string $fileToDelete = null): Attribute
     {
         return Attribute::make(
-
             // GETTER
             get: function (?string $value) use ($defaultData) {
                 if (empty($value)) {
@@ -26,14 +25,14 @@ trait FileTrait
 
                 // Convert file paths to URLs
                 return array_map(function ($file) use ($defaultData) {
-                    if (filter_var($file, FILTER_VALIDATE_URL)) return $file;
+                    if (filter_var($file, FILTER_VALIDATE_URL))
+                        return $file;
                     if (Storage::disk('public')->exists($file)) {
                         return Storage::disk('public')->url($file);
                     }
                     return $defaultData;
                 }, $files);
             },
-
             // SETTER
             set: function ($value) use ($defaultPath, $fileToDelete) {
                 if (empty($value)) {
@@ -54,7 +53,6 @@ trait FileTrait
                     }
                     // If uploaded file → store it
                     elseif ($file instanceof UploadedFile) {
-
                         // Delete old file if specified (optional)
                         if (!empty($fileToDelete) && Storage::disk('public')->exists($fileToDelete)) {
                             Storage::disk('public')->delete($fileToDelete);

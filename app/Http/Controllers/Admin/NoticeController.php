@@ -10,6 +10,7 @@ use App\Models\Citizen;
 use App\Models\Notice;
 use App\Models\OfficeSetting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -85,17 +86,40 @@ class NoticeController extends Controller
 
     public function sendNoticeToAll(Notice $notice)
     {
-        $users = Citizen::where('ward_id', $notice->ward_id)
+        $users = Citizen::where('ward', $notice->ward_id)
             ->whereNotNull('email')
             ->where('email', '!=', '')
             ->get();
 
+        $sent = 0;
+        $failed = 0;
+
         foreach ($users as $user) {
-            Mail::to($user->email)->queue(
-                new SendNoticeToAllUser($notice)
-            );
+            try {
+                Mail::to($user->email)
+                    ->send(new SendNoticeToAllUser($notice));
+
+                $sent++;
+
+                Log::info('Notice email sent', [
+                    'citizen_id' => $user->id,
+                    'email' => $user->email,
+                    'ward' => $user->ward,
+                ]);
+            } catch (\Throwable $e) {
+                $failed++;
+
+                Log::error('Notice email failed', [
+                    'citizen_id' => $user->id,
+                    'email' => $user->email,
+                    'error' => $e->getMessage(),
+                ]);
+            }
         }
 
-        return back()->with('success', 'Notice Sent Successfully');
+        return back()->with(
+            'success',
+            "Notice sent. Sent: {$sent}, Failed: {$failed}."
+        );
     }
 }
