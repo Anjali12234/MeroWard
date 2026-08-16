@@ -29,8 +29,8 @@ export default function CitizenLogin() {
                         <label className="block text-xs font-semibold text-slate-600 mb-1">
                             Email Address
                         </label>
-                        <input 
-                            type="email" 
+                        <input
+                            type="email"
                             value={data.email}
                             onChange={e => setData('email', e.target.value)}
                             className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-600"
@@ -43,8 +43,8 @@ export default function CitizenLogin() {
                         <label className="block text-xs font-semibold text-slate-600 mb-1">
                             Password
                         </label>
-                        <input 
-                            type="password" 
+                        <input
+                            type="password"
                             value={data.password}
                             onChange={e => setData('password', e.target.value)}
                             className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-600"
@@ -55,7 +55,7 @@ export default function CitizenLogin() {
 
                     <div className="flex items-center justify-between text-xs">
                         <label className="flex items-center space-x-2 text-slate-600 cursor-pointer">
-                            <input 
+                            <input
                                 type="checkbox"
                                 checked={data.remember}
                                 onChange={e => setData('remember', e.target.checked)}
@@ -65,8 +65,8 @@ export default function CitizenLogin() {
                         </label>
                     </div>
 
-                    <button 
-                        type="submit" 
+                    <button
+                        type="submit"
                         disabled={processing}
                         className="w-full bg-sky-700 hover:bg-sky-800 text-white py-2.5 rounded-md text-sm font-semibold transition duration-150 disabled:opacity-50"
                     >

@@ -124,22 +124,21 @@ export default function CitizenRegister({ locationData = [] }: CitizenRegisterPr
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-                        
+
                         {/* User Name & Email */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label className="block font-semibold text-slate-700 mb-1">
                                     Full Name <span className="text-red-500">*</span>
                                 </label>
-                                <input 
-                                    type="text" 
+                                <input
+                                    type="text"
                                     required
                                     value={data.user_name}
                                     onChange={(e) => setData('user_name', e.target.value)}
                                     placeholder="Enter full name"
-                                    className={`w-full p-2.5 rounded-xl border focus:ring-2 focus:ring-sky-500 focus:outline-none transition ${
-                                        errors.user_name ? 'border-red-500' : 'border-slate-300'
-                                    }`}
+                                    className={`w-full p-2.5 rounded-xl border focus:ring-2 focus:ring-sky-500 focus:outline-none transition ${errors.user_name ? 'border-red-500' : 'border-slate-300'
+                                        }`}
                                 />
                                 {errors.user_name && <span className="text-red-500 text-[10px] mt-1 block">{errors.user_name}</span>}
                             </div>
@@ -148,15 +147,14 @@ export default function CitizenRegister({ locationData = [] }: CitizenRegisterPr
                                 <label className="block font-semibold text-slate-700 mb-1">
                                     Email Address <span className="text-red-500">*</span>
                                 </label>
-                                <input 
-                                    type="email" 
+                                <input
+                                    type="email"
                                     required
                                     value={data.email}
                                     onChange={(e) => setData('email', e.target.value)}
                                     placeholder="example@domain.com"
-                                    className={`w-full p-2.5 rounded-xl border focus:ring-2 focus:ring-sky-500 focus:outline-none transition ${
-                                        errors.email ? 'border-red-500' : 'border-slate-300'
-                                    }`}
+                                    className={`w-full p-2.5 rounded-xl border focus:ring-2 focus:ring-sky-500 focus:outline-none transition ${errors.email ? 'border-red-500' : 'border-slate-300'
+                                        }`}
                                 />
                                 {errors.email && <span className="text-red-500 text-[10px] mt-1 block">{errors.email}</span>}
                             </div>
@@ -169,13 +167,12 @@ export default function CitizenRegister({ locationData = [] }: CitizenRegisterPr
                                 <label className="block font-semibold text-slate-700 mb-1">
                                     Province <span className="text-red-500">*</span>
                                 </label>
-                                <select 
+                                <select
                                     required
                                     value={data.province_id}
                                     onChange={handleProvinceChange}
-                                    className={`w-full p-2.5 rounded-xl border bg-white focus:ring-2 focus:ring-sky-500 focus:outline-none transition ${
-                                        errors.province_id ? 'border-red-500' : 'border-slate-300'
-                                    }`}
+                                    className={`w-full p-2.5 rounded-xl border bg-white focus:ring-2 focus:ring-sky-500 focus:outline-none transition ${errors.province_id ? 'border-red-500' : 'border-slate-300'
+                                        }`}
                                 >
                                     <option value="">Select Province</option>
                                     {locationData.map((p) => (
@@ -190,14 +187,13 @@ export default function CitizenRegister({ locationData = [] }: CitizenRegisterPr
                                 <label className="block font-semibold text-slate-700 mb-1">
                                     District <span className="text-red-500">*</span>
                                 </label>
-                                <select 
+                                <select
                                     required
                                     disabled={!data.province_id || districts.length === 0}
                                     value={data.district_id}
                                     onChange={handleDistrictChange}
-                                    className={`w-full p-2.5 rounded-xl border bg-white focus:ring-2 focus:ring-sky-500 focus:outline-none transition disabled:opacity-50 ${
-                                        errors.district_id ? 'border-red-500' : 'border-slate-300'
-                                    }`}
+                                    className={`w-full p-2.5 rounded-xl border bg-white focus:ring-2 focus:ring-sky-500 focus:outline-none transition disabled:opacity-50 ${errors.district_id ? 'border-red-500' : 'border-slate-300'
+                                        }`}
                                 >
                                     <option value="">Select District</option>
                                     {districts.map((d) => (
@@ -212,14 +208,13 @@ export default function CitizenRegister({ locationData = [] }: CitizenRegisterPr
                                 <label className="block font-semibold text-slate-700 mb-1">
                                     Local Body <span className="text-red-500">*</span>
                                 </label>
-                                <select 
+                                <select
                                     required
                                     disabled={!data.district_id || localBodies.length === 0}
                                     value={data.local_body_id}
                                     onChange={handleLocalBodyChange}
-                                    className={`w-full p-2.5 rounded-xl border bg-white focus:ring-2 focus:ring-sky-500 focus:outline-none transition disabled:opacity-50 ${
-                                        errors.local_body_id ? 'border-red-500' : 'border-slate-300'
-                                    }`}
+                                    className={`w-full p-2.5 rounded-xl border bg-white focus:ring-2 focus:ring-sky-500 focus:outline-none transition disabled:opacity-50 ${errors.local_body_id ? 'border-red-500' : 'border-slate-300'
+                                        }`}
                                 >
                                     <option value="">Select Local Body</option>
                                     {localBodies.map((lb) => (
@@ -236,14 +231,13 @@ export default function CitizenRegister({ locationData = [] }: CitizenRegisterPr
                                 <label className="block font-semibold text-slate-700 mb-1">
                                     Ward No. <span className="text-red-500">*</span>
                                 </label>
-                                <select 
+                                <select
                                     required
                                     disabled={!data.local_body_id || availableWards.length === 0}
                                     value={data.ward}
                                     onChange={(e) => setData('ward', e.target.value)}
-                                    className={`w-full p-2.5 rounded-xl border bg-white focus:ring-2 focus:ring-sky-500 focus:outline-none transition disabled:opacity-50 ${
-                                        errors.ward ? 'border-red-500' : 'border-slate-300'
-                                    }`}
+                                    className={`w-full p-2.5 rounded-xl border bg-white focus:ring-2 focus:ring-sky-500 focus:outline-none transition disabled:opacity-50 ${errors.ward ? 'border-red-500' : 'border-slate-300'
+                                        }`}
                                 >
                                     <option value="">Select Ward</option>
                                     {availableWards.map((wardNo) => (
@@ -259,15 +253,14 @@ export default function CitizenRegister({ locationData = [] }: CitizenRegisterPr
                                 <label className="block font-semibold text-slate-700 mb-1">
                                     Phone Number <span className="text-red-500">*</span>
                                 </label>
-                                <input 
-                                    type="text" 
+                                <input
+                                    type="text"
                                     required
                                     value={data.phone_number}
                                     onChange={(e) => setData('phone_number', e.target.value)}
                                     placeholder="98XXXXXXXX"
-                                    className={`w-full p-2.5 rounded-xl border focus:ring-2 focus:ring-sky-500 focus:outline-none transition ${
-                                        errors.phone_number ? 'border-red-500' : 'border-slate-300'
-                                    }`}
+                                    className={`w-full p-2.5 rounded-xl border focus:ring-2 focus:ring-sky-500 focus:outline-none transition ${errors.phone_number ? 'border-red-500' : 'border-slate-300'
+                                        }`}
                                 />
                                 {errors.phone_number && <span className="text-red-500 text-[10px] mt-1 block">{errors.phone_number}</span>}
                             </div>
@@ -276,15 +269,14 @@ export default function CitizenRegister({ locationData = [] }: CitizenRegisterPr
                                 <label className="block font-semibold text-slate-700 mb-1">
                                     WhatsApp Number <span className="text-red-500">*</span>
                                 </label>
-                                <input 
-                                    type="text" 
+                                <input
+                                    type="text"
                                     required
                                     value={data.whatsapp_number}
                                     onChange={(e) => setData('whatsapp_number', e.target.value)}
                                     placeholder="98XXXXXXXX"
-                                    className={`w-full p-2.5 rounded-xl border focus:ring-2 focus:ring-sky-500 focus:outline-none transition ${
-                                        errors.whatsapp_number ? 'border-red-500' : 'border-slate-300'
-                                    }`}
+                                    className={`w-full p-2.5 rounded-xl border focus:ring-2 focus:ring-sky-500 focus:outline-none transition ${errors.whatsapp_number ? 'border-red-500' : 'border-slate-300'
+                                        }`}
                                 />
                                 {errors.whatsapp_number && <span className="text-red-500 text-[10px] mt-1 block">{errors.whatsapp_number}</span>}
                             </div>
@@ -296,15 +288,14 @@ export default function CitizenRegister({ locationData = [] }: CitizenRegisterPr
                                 <label className="block font-semibold text-slate-700 mb-1">
                                     Password <span className="text-red-500">*</span>
                                 </label>
-                                <input 
-                                    type="password" 
+                                <input
+                                    type="password"
                                     required
                                     value={data.password}
                                     onChange={(e) => setData('password', e.target.value)}
                                     placeholder="Min 8 chars, mixed case, number & symbol"
-                                    className={`w-full p-2.5 rounded-xl border focus:ring-2 focus:ring-sky-500 focus:outline-none transition ${
-                                        errors.password ? 'border-red-500' : 'border-slate-300'
-                                    }`}
+                                    className={`w-full p-2.5 rounded-xl border focus:ring-2 focus:ring-sky-500 focus:outline-none transition ${errors.password ? 'border-red-500' : 'border-slate-300'
+                                        }`}
                                 />
                                 {errors.password && <span className="text-red-500 text-[10px] mt-1 block">{errors.password}</span>}
                             </div>
@@ -313,8 +304,8 @@ export default function CitizenRegister({ locationData = [] }: CitizenRegisterPr
                                 <label className="block font-semibold text-slate-700 mb-1">
                                     Confirm Password <span className="text-red-500">*</span>
                                 </label>
-                                <input 
-                                    type="password" 
+                                <input
+                                    type="password"
                                     required
                                     value={data.password_confirmation}
                                     onChange={(e) => setData('password_confirmation', e.target.value)}
@@ -326,14 +317,14 @@ export default function CitizenRegister({ locationData = [] }: CitizenRegisterPr
 
                         {/* Submit Actions */}
                         <div className="pt-6 flex items-center justify-end space-x-3">
-                            <Link 
-                                href="/" 
+                            <Link
+                                href="/"
                                 className="px-5 py-2.5 border border-slate-300 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition"
                             >
                                 Cancel
                             </Link>
-                            <button 
-                                type="submit" 
+                            <button
+                                type="submit"
                                 disabled={processing}
                                 className="px-6 py-2.5 bg-sky-700 hover:bg-sky-800 text-white rounded-xl font-semibold shadow-sm transition disabled:opacity-50"
                             >

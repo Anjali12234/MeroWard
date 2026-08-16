@@ -5,9 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Notice\StoreNoticeRequest;
 use App\Http\Requests\Notice\UpdateNoticeRequest;
+use App\Mail\SendNoticeToAllUser;
+use App\Models\Citizen;
 use App\Models\Notice;
 use App\Models\OfficeSetting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 
@@ -34,8 +37,8 @@ class NoticeController extends Controller
         // FileTrait automatically intercepts 'document' and handles storing files to public disk
         Notice::create($request->validated() + [
             'ward_id' => $officeSetting?->ward
-        ]); 
-       
+        ]);
+
         return to_route('admin.notice.index')->with('success', 'Notice Created Successfully');
     }
 
@@ -69,5 +72,30 @@ class NoticeController extends Controller
         $notice->delete();
 
         return to_route('admin.notice.index')->with('success', 'Notice Deleted Successfully');
+    }
+
+    public function toggleStatus(Notice $notice)
+    {
+        $notice->update([
+            'status' => !$notice->status,
+        ]);
+
+        return to_route('admin.notice.index')->with('success', 'Notice Status Updated Successfully');
+    }
+
+    public function sendNoticeToAll(Notice $notice)
+    {
+        $users = Citizen::where('ward_id', $notice->ward_id)
+            ->whereNotNull('email')
+            ->where('email', '!=', '')
+            ->get();
+
+        foreach ($users as $user) {
+            Mail::to($user->email)->queue(
+                new SendNoticeToAllUser($notice)
+            );
+        }
+
+        return back()->with('success', 'Notice Sent Successfully');
     }
 }

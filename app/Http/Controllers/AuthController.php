@@ -6,9 +6,9 @@ use App\Http\Requests\Citizen\CitizenRequest;
 use App\Models\Citizen;
 use App\Models\Province;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Inertia\Inertia;
 use Laravel\Fortify\Http\Requests\LoginRequest;
 
 class AuthController extends Controller
@@ -34,7 +34,7 @@ class AuthController extends Controller
                 }),
             ];
         });
-        return Inertia::render('auth/citizenRegister', [
+        return Inertia::render('Frontend/CitizenAuth/Register', [
             'locationData' => $locationData
         ]);
     }
@@ -55,7 +55,7 @@ class AuthController extends Controller
 
     public function citizenLoginPage()
     {
-        return Inertia::render('auth/citizenLogin');
+        return Inertia::render('Frontend/CitizenAuth/Login');
     }
 
     // In App\Http\Controllers\AuthController.php
@@ -63,13 +63,13 @@ class AuthController extends Controller
     public function citizenLogin(Request $request)
     {
         $credentials = $request->validate([
-            'email'    => 'required|email',
+            'email' => 'required|email',
             'password' => 'required|string',
         ]);
 
         if (Auth::guard('citizen')->attempt($credentials, $request->remember)) {
             $request->session()->regenerate();
-            return redirect()->intended('/'); // Redirects to Home page
+            return redirect()->intended('/');  // Redirects to Home page
         }
 
         return back()->withErrors([

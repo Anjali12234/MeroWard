@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import { PageProps } from '@inertiajs/core';
+import { citizenLoginPage } from '@/routes';
 
 // TypeScript interfaces
 interface Citizen {
@@ -44,19 +45,19 @@ export default function Header() {
 
                 {/* Actions */}
                 <div className="flex items-center space-x-4">
-                    
+
                     {citizen ? (
                         /* --- LOGGED IN STATE --- */
                         <>
-                            <Link 
-                                href="/citizen/profile" 
+                            <Link
+                                href="/citizen/profile"
                                 className="flex items-center space-x-2 border-l border-r px-4 border-slate-200"
                             >
                                 <div className="w-8 h-8 rounded-full bg-slate-300 overflow-hidden">
-                                    <img 
-                                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${citizen.user_name}`} 
-                                        alt="Profile Avatar" 
-                                        className="w-full h-full object-cover" 
+                                    <img
+                                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${citizen.user_name}`}
+                                        alt="Profile Avatar"
+                                        className="w-full h-full object-cover"
                                     />
                                 </div>
                                 <span className="text-xs font-semibold text-slate-700 hidden sm:inline">
@@ -65,9 +66,9 @@ export default function Header() {
                             </Link>
 
                             {/* Logout Button (Sends a POST request) */}
-                            <Link 
-                                href="/citizenLogout" 
-                                method="post" 
+                            <Link
+                                href="/citizenLogout"
+                                method="post"
                                 as="button"
                                 className="text-xs bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-md font-semibold transition"
                             >
@@ -77,22 +78,22 @@ export default function Header() {
                     ) : (
                         /* --- LOGGED OUT STATE --- */
                         <>
-                            <Link 
-                                href="/citizenRegister" 
+                            <Link
+                                href={citizenLoginPage().url}
                                 className="text-xs bg-sky-600 hover:bg-sky-700 text-white px-3 py-1.5 rounded-md font-semibold transition"
                             >
-                                Register Citizen
+                                Citizen Login
                             </Link>
 
-                            <Link 
-                                href="/citizenRegister" 
+                            <Link
+                                href="/citizenRegister"
                                 className="flex items-center space-x-2 border-l border-r px-4 border-slate-200"
                             >
                                 <div className="w-8 h-8 rounded-full bg-slate-300 overflow-hidden">
-                                    <img 
-                                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=Guest`} 
-                                        alt="Profile Avatar" 
-                                        className="w-full h-full object-cover" 
+                                    <img
+                                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=Guest`}
+                                        alt="Profile Avatar"
+                                        className="w-full h-full object-cover"
                                     />
                                 </div>
                                 <span className="text-xs font-semibold text-slate-700 hidden sm:inline">
@@ -101,9 +102,9 @@ export default function Header() {
                             </Link>
                         </>
                     )}
-                    
-                    <select 
-                        value={language} 
+
+                    <select
+                        value={language}
                         onChange={(e) => setLanguage(e.target.value)}
                         className="text-xs bg-sky-800 text-white px-3 py-1.5 rounded-md font-medium outline-none cursor-pointer"
                     >
