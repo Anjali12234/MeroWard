@@ -1,0 +1,6 @@
+[
+  {
+    "type": "sqlite",
+    "path": "d:\\myproject\\MeroWard\\database\\database.sqlite"
+  }
+]
