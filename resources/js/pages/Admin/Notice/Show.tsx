@@ -165,7 +165,7 @@ export default function NoticeShow({ notice }: NoticeShowProps) {
                             </div>
                           )}
 
-                          {/* Action Buttons */}
+                          {/* Action Buttons */}  
                           <div className="flex gap-2 pt-2 border-t border-slate-200/60">
                             <Button
                               variant="outline"

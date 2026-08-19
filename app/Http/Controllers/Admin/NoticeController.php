@@ -39,8 +39,8 @@ class NoticeController extends Controller
         Notice::create($request->validated() + [
             'ward_id' => $officeSetting?->ward
         ]);
-
-        return to_route('admin.notice.index')->with('success', 'Notice Created Successfully');
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Notice Created Successfully.')]);
+        return to_route('admin.notice.index');
     }
 
     public function show(Notice $notice)

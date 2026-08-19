@@ -186,7 +186,7 @@ export default function Profile({
                                         <option key={r.value} value={r.value}>
                                             {r.label}
                                         </option>
-                                    ))}
+                                    ))} 
                                 </select>
                                 <InputError className="mt-2" message={errors.role} />
                             </div>

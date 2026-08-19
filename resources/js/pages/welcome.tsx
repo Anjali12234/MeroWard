@@ -82,7 +82,7 @@ export default function Welcome({ emplyeeReps }: WelcomeProps) {
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-lg font-bold text-slate-800">Latest Dynamic Notices</h2>
                             <button className="bg-white/90 px-3 py-1 rounded-lg text-xs font-semibold text-slate-700 border border-slate-300 shadow-sm">
-                                Filter ∨
+                                Filter
                             </button>
                         </div>
 

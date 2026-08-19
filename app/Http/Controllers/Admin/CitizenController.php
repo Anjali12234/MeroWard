@@ -21,6 +21,9 @@ class CitizenController extends Controller
         $citizen->update([
             'status' => !$citizen->status
         ]);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Citizen Updated Successfully.')]);
+
+        
     }
     public function show(Citizen $citizen)
     {

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\CitizenController;
 use App\Http\Controllers\Admin\EmployeeController;
+use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\NoticeController;
 use App\Http\Controllers\Admin\OfficeSettingController;
 use App\Http\Controllers\Admin\ServiceController;
@@ -12,6 +13,11 @@ Route::resource('office-setting', OfficeSettingController::class);
 Route::resource('citizen', CitizenController::class);
 Route::patch('citizens/{citizen}/status', [CitizenController::class, 'status'])->name('citizens.status');
 Route::resource('employee', EmployeeController::class);
+Route::resource('event', EventController::class);
+Route::get('events/{event}/upload-minute', [EventController::class, 'uploadMinutePage'])
+    ->name('uploadMinutePage');
+Route::post('events/{event}/upload-minute', [EventController::class, 'uploadMinute'])
+    ->name('uploadMinute');
 Route::resource('service', ServiceController::class);
 Route::resource('notice', NoticeController::class);
 Route::post('send-mail-to-all/{notice}', [NoticeController::class, 'sendNoticeToAll'])->name('SendMailToUser');

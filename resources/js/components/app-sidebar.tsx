@@ -20,6 +20,7 @@ import citizen from '@/routes/admin/citizen';
 import employee from '@/routes/admin/employee';
 import service from '@/routes/admin/service';
 import notice from '@/routes/admin/notice';
+import event from '@/routes/admin/event';
 
 export function AppSidebar() {
     const page = usePage();
@@ -54,6 +55,11 @@ export function AppSidebar() {
         {
             title: "Notice",
             href: notice.index(),
+            icon: BookOpen
+        },
+        {
+            title: "Event",
+            href: event.index(),
             icon: BookOpen
         },
     ];

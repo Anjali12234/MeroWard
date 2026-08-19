@@ -34,7 +34,9 @@ class EmployeeController extends Controller
         Employee::create($request->validated() + [
             'ward_no' => $officeSetting?->ward, // Safely gets ward_id or null if no record exists
         ]);
-        return to_route('admin.employee.index')->with('success', 'Employee Created Successfully');
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Employee Created Successfully.')]);
+
+        return to_route('admin.employee.index');
     }
      public function show(Employee $employee)
     {
@@ -58,7 +60,9 @@ class EmployeeController extends Controller
             deleteFile($employee->getRawOriginal('image'));
         }
         $employee->update($data);
-        return to_route('admin.employee.index')->with('success', 'Employee Created Successfully');
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Employee Created Successfully.')]);
+
+        return to_route('admin.employee.index');
     }
      public function destroy(Employee $employee)
     {
@@ -67,6 +71,8 @@ class EmployeeController extends Controller
             Storage::disk('public')->delete($imagePath);
         }
         $employee->delete();
-        return to_route('admin.employee.index')->with('success', 'Employee Deleted Successfully');
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Employee Deleted Successfully')]);
+
+        return to_route('admin.employee.index');
     }
 }

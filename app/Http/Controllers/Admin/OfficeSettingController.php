@@ -65,7 +65,7 @@ class OfficeSettingController extends Controller
 
 
         Cache::forget('office_setting');
-        return to_route('admin.office-setting.index')
-            ->with('success', 'Office Setting Updated Successfully');
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Office Setting Updated Successfully.')]);
+        return to_route('admin.office-setting.index');
     }
 }
