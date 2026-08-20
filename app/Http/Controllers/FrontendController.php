@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Employee;
+use App\Models\Event;
 use App\Models\Notice;
 use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class FrontendController extends Controller
 {
@@ -21,6 +23,7 @@ class FrontendController extends Controller
 
         return Inertia::render('welcome', [
             'emplyeeReps' => $emplyeeReps,
+            'events' => Event::all(),
         ]);
     }
 
@@ -46,6 +49,12 @@ class FrontendController extends Controller
         $notices = Notice::latest()->get();
         return Inertia::render('Frontend/notice',[
             'notices' => $notices,
+        ]);
+    }
+    public function eventShow(Event $event): Response
+    {
+        return Inertia::render('Frontend/eventShow', [
+            'event' => $event,
         ]);
     }
 }

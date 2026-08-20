@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
-  ArrowLeft, Edit, Image as ImageIcon, Calendar, MapPin, 
+  ArrowLeft, Edit, Calendar, MapPin, 
   FileText, Activity, Clock, Paperclip, Download, ExternalLink, FileIcon
 } from "lucide-react";
 import { Event } from "@/types/Admin/Event";
@@ -18,7 +18,7 @@ export default function EventShow({ event }: EventShowProps) {
   const handleBack = () => window.history.back();
 
   // Helper for status badge formatting
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status?: string) => {
     switch (status) {
       case "ongoing":
         return "bg-emerald-100 text-emerald-800 border-emerald-200 hover:bg-emerald-100";
@@ -33,33 +33,72 @@ export default function EventShow({ event }: EventShowProps) {
     }
   };
 
-  const formatStatusText = (status: string) => {
-    return status?.replace("_", " ").toUpperCase() || "UNKNOWN";
+  const formatStatusText = (status?: string) => {
+    return status ? status.replace("_", " ").toUpperCase() : "UNKNOWN";
   };
 
-  const getFileName = (url: string) => {
-    return url.split("/").pop() || "Document.pdf";
+  // Safe resolver to get clean URL string (supports JSON array strings or standard strings)
+  const getMinutesUrl = (fileData?: unknown): string | null => {
+    if (!fileData) return null;
+
+    if (typeof fileData === "string") {
+      let trimmed = fileData.trim();
+      // Handle array strings saved in DB like ["minutes/file.pdf"]
+      if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+        try {
+          const parsed = JSON.parse(trimmed);
+          trimmed = Array.isArray(parsed) && parsed.length > 0 ? parsed[0] : "";
+        } catch {
+          // Fallback regex extract if invalid JSON
+          trimmed = trimmed.replace(/[\[\]\\"]/g, "");
+        }
+      }
+      return trimmed !== "" ? trimmed : null;
+    }
+
+    if (Array.isArray(fileData) && fileData.length > 0) {
+      return typeof fileData[0] === "string" ? fileData[0] : null;
+    }
+
+    return null;
   };
+
+  const minuteUrl = getMinutesUrl(event?.minutes_pdf);
+
+  // Safe file name extractor
+  const getFileName = (url?: string | null) => {
+    if (url) {
+      return url.split("/").pop() || "Document.pdf";
+    }
+    return "Document.pdf";
+  };
+
+  // Safe checks for file types
+  const lowerUrl = minuteUrl?.toLowerCase() || "";
+  const isPdf = lowerUrl.endsWith(".pdf") || lowerUrl.includes(".pdf");
+  const isImage = [".jpg", ".jpeg", ".png", ".webp"].some((ext) => lowerUrl.endsWith(ext));
 
   return (
     <>
       <Head title={`Event - ${event?.title ?? "Details"}`} />
-      <div className="flex h-full flex-1 flex-col gap-6 p-4">
+      <div className="flex h-full flex-1 flex-col gap-6 p-4 max-w-5xl mx-auto w-full">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <Button
               variant="outline"
               size="sm"
               onClick={handleBack}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 bg-white"
             >
               <ArrowLeft className="h-4 w-4" />
               Back
             </Button>
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-bold tracking-tight">Event Details</h1>
+                <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+                  Event Details
+                </h1>
                 <Badge className={`font-medium text-xs px-2.5 py-0.5 ${getStatusBadge(event?.status)}`}>
                   {formatStatusText(event?.status)}
                 </Badge>
@@ -70,108 +109,116 @@ export default function EventShow({ event }: EventShowProps) {
             </div>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" asChild className="flex items-center gap-2">
-              <Link href={edit(event.id).url}>
-                <Edit className="h-4 w-4" />
-                Edit
-              </Link>
-            </Button>
+            {event?.id && (
+              <Button variant="outline" asChild className="flex items-center gap-2 bg-white">
+                <Link href={edit(event.id).url}>
+                  <Edit className="h-4 w-4" />
+                  Edit
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
 
         {/* Content Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-
-          {/* Right Column: Event Details & Minute PDF */}
-          <div className="lg:col-span-2 space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base font-semibold text-slate-800">Overview</CardTitle>
-              </CardHeader>
-              
-              <CardContent className="space-y-6">
-                {/* Title & Status */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                      <FileText className="h-3.5 w-3.5 text-slate-400" /> Event Title
-                    </h3>
-                    <p className="mt-1 text-base font-semibold text-slate-900">{event.title || "N/A"}</p>
-                  </div>
-
-                  <div>
-                    <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                      <Activity className="h-3.5 w-3.5 text-slate-400" /> Status
-                    </h3>
-                    <div className="mt-1">
-                      <Badge className={`font-normal text-sm px-2.5 py-0.5 ${getStatusBadge(event?.status)}`}>
-                        {formatStatusText(event?.status)}
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Date & Location */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-slate-100">
-                  <div>
-                    <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                      <Calendar className="h-3.5 w-3.5 text-slate-400" /> Event Date & Time
-                    </h3>
-                    <p className="mt-1 text-sm font-medium text-slate-800 flex items-center gap-1">
-                      <Clock className="h-3.5 w-3.5 text-slate-400" />
-                      {event.event_date ? new Date(event.event_date).toLocaleString() : "N/A"}
-                    </p>
-                  </div>
-
-                  <div>
-                    <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                      <MapPin className="h-3.5 w-3.5 text-slate-400" /> Location / Venue
-                    </h3>
-                    <p className="mt-1 text-sm font-medium text-slate-800">{event.location || "N/A"}</p>
-                  </div>
-                </div>
-
-                {/* Description */}
-                <div className="pt-4 border-t border-slate-100">
-                  <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Description / Agenda
+        <div className="space-y-6">
+          {/* Main Event Details */}
+          <Card className="border-slate-200 shadow-sm">
+            <CardHeader className="border-b border-slate-100 bg-white/50 pb-4">
+              <CardTitle className="text-base font-semibold text-slate-800">
+                Overview
+              </CardTitle>
+            </CardHeader>
+            
+            <CardContent className="space-y-6 p-6">
+              {/* Title & Status */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                    <FileText className="h-3.5 w-3.5 text-slate-400" /> Event Title
                   </h3>
-                  <div className="mt-2 text-sm text-slate-700 leading-relaxed bg-slate-50 p-4 rounded-lg border border-slate-100 whitespace-pre-line">
-                    {event.description || "No description provided."}
+                  <p className="mt-1 text-base font-semibold text-slate-900">
+                    {event?.title || "N/A"}
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                    <Activity className="h-3.5 w-3.5 text-slate-400" /> Status
+                  </h3>
+                  <div className="mt-1">
+                    <Badge className={`font-normal text-sm px-2.5 py-0.5 ${getStatusBadge(event?.status)}`}>
+                      {formatStatusText(event?.status)}
+                    </Badge>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
 
-            {/* Attached Minute PDF Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base font-semibold text-slate-800 flex items-center gap-2">
-                  <Paperclip className="h-4 w-4 text-blue-600" />
-                  Meeting Minutes (PDF)
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {!event.minutes_pdf ? (
-                  <p className="text-sm text-muted-foreground italic">No minute PDF document attached.</p>
-                ) : (
+              {/* Date & Location */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-slate-100">
+                <div>
+                  <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                    <Calendar className="h-3.5 w-3.5 text-slate-400" /> Event Date & Time
+                  </h3>
+                  <p className="mt-1 text-sm font-medium text-slate-800 flex items-center gap-1.5">
+                    <Clock className="h-3.5 w-3.5 text-slate-400" />
+                    {event?.event_date ? new Date(event.event_date).toLocaleString() : "N/A"}
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                    <MapPin className="h-3.5 w-3.5 text-slate-400" /> Location / Venue
+                  </h3>
+                  <p className="mt-1 text-sm font-medium text-slate-800">
+                    {event?.location || "N/A"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="pt-4 border-t border-slate-100">
+                <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Description / Agenda
+                </h3>
+                <div className="mt-2 text-sm text-slate-700 leading-relaxed bg-slate-50 p-4 rounded-lg border border-slate-100 whitespace-pre-line">
+                  {event?.description || "No description provided."}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Attached Minute Document Section */}
+          <Card className="border-slate-200 shadow-sm">
+            <CardHeader className="border-b border-slate-100 bg-white/50 pb-4">
+              <CardTitle className="text-base font-semibold text-slate-800 flex items-center gap-2">
+                <Paperclip className="h-4 w-4 text-blue-600" />
+                Meeting Minutes Document
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              {!minuteUrl ? (
+                <p className="text-sm text-muted-foreground italic">
+                  No minute document attached.
+                </p>
+              ) : (
+                <div className="space-y-4">
                   <div className="border border-slate-200 rounded-lg p-4 bg-slate-50/50 flex flex-col justify-between space-y-3 max-w-md">
                     <div className="flex items-center gap-3">
                       <div className="p-2.5 bg-white border border-slate-200 rounded-lg shadow-sm">
                         <FileIcon className="h-5 w-5 text-red-600" />
                       </div>
                       <div className="overflow-hidden">
-                        <p className="text-sm font-medium text-slate-900 truncate" title={getFileName(event.minutes_pdf)}>
-                          {getFileName(event.minutes_pdf)}
+                        <p className="text-sm font-medium text-slate-900 truncate" title={getFileName(minuteUrl)}>
+                          {getFileName(minuteUrl)}
                         </p>
                         <p className="text-xs text-slate-500 uppercase font-semibold">
-                          PDF Document
+                          {isPdf ? "PDF Document" : isImage ? "Image Document" : "Attached File"}
                         </p>
                       </div>
                     </div>
 
-                    {/* PDF Actions */}
+                    {/* Action Buttons */}
                     <div className="flex gap-2 pt-2 border-t border-slate-200/60">
                       <Button
                         variant="outline"
@@ -179,9 +226,9 @@ export default function EventShow({ event }: EventShowProps) {
                         asChild
                         className="w-full text-xs flex items-center justify-center gap-1.5 bg-white"
                       >
-                        <a href={event.minutes_pdf} target="_blank" rel="noopener noreferrer">
+                        <a href={minuteUrl} target="_blank" rel="noopener noreferrer">
                           <ExternalLink className="h-3.5 w-3.5" />
-                          View PDF
+                          View
                         </a>
                       </Button>
                       <Button
@@ -190,18 +237,39 @@ export default function EventShow({ event }: EventShowProps) {
                         asChild
                         className="w-full text-xs flex items-center justify-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white"
                       >
-                        <a href={event.minutes_pdf} download>
+                        <a href={minuteUrl} download>
                           <Download className="h-3.5 w-3.5" />
                           Download
                         </a>
                       </Button>
                     </div>
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
 
+                  {/* PDF Preview Frame */}
+                  {isPdf && (
+                    <div className="mt-4 rounded-lg overflow-hidden border border-slate-200 h-[500px] bg-white shadow-inner">
+                      <iframe
+                        src={`${minuteUrl}#toolbar=0`}
+                        className="w-full h-full"
+                        title="Minute Document Preview"
+                      />
+                    </div>
+                  )}
+
+                  {/* Image Preview */}
+                  {isImage && (
+                    <div className="mt-4 rounded-lg overflow-hidden border border-slate-200 bg-white p-2 max-w-2xl">
+                      <img
+                        src={minuteUrl}
+                        alt="Minute Document Preview"
+                        className="w-full h-auto max-h-[500px] object-contain rounded"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </>

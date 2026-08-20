@@ -21,7 +21,7 @@ class Event extends Model
         'ward_no',
         'minutes_pdf'
     ];
-    public function MinutePdf(): Attribute
+     public function minutesPdf(): Attribute
     {
         return $this->castingFile(defaultPath: 'event', fileToDelete: $this->attributes['minutes_pdf'] ?? null);
     }

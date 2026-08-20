@@ -22,7 +22,6 @@ class StoreEventRequest extends FormRequest
             'location' => ['required','string', 'max:255'],
             'event_date' => ['required', 'string','max:255'],
             'status' => ['required', 'string','max:255'],
-            'minutes_pdf' => ['nullable', 'image', 'mimes:png,jpg,jpeg,pdf'],
         ];
     }
 }

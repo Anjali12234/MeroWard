@@ -6,6 +6,7 @@ use App\Enums\EventStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Event\StoreEventRequest;
 use App\Http\Requests\Event\UpdateEventRequest;
+use App\Http\Requests\Event\UploadMinuteRequest;
 use App\Models\Event;
 use App\Models\OfficeSetting;
 use Illuminate\Http\Request;
@@ -53,7 +54,7 @@ class EventController extends Controller
     }
     public function edit(Event $event)
     {
-         $statuses = collect(EventStatus::cases())->map(fn($status) => [
+        $statuses = collect(EventStatus::cases())->map(fn($status) => [
             'value' => $status->value,
             'label' => $status->label(),
         ]);
@@ -87,31 +88,23 @@ class EventController extends Controller
 
         return to_route('admin.event.index');
     }
-     public function uploadMinutePage(Event $event)
+    public function uploadMinutePage(Event $event)
     {
         return Inertia::render('Admin/Event/UploadMinute', [
             'event' => $event
         ]);
     }
-    public function uploadMinute(Request $request, Event $event)
+    public function uploadMinute(UploadMinuteRequest $request, Event $event)
     {
-        $request->validate([
-            'minutes_pdf' => ['required', 'file', 'mimes:pdf', 'max:5120'], // Max 5MB PDF
-        ]);
 
-        // Delete existing minute PDF if it exists
-        if ($event->getRawOriginal('minutes_pdf')) {
+        $data = $request->validated();
+        if ($request->hasFile('minutes_pdf')) {
             deleteFile($event->getRawOriginal('minutes_pdf'));
         }
+        $event->update($data);
 
-        $path = $request->file('minutes_pdf')->store('minutes', 'public');
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Event Deleted Successfully')]);
 
-        $event->update([
-            'minutes_pdf' => $path,
-        ]);
-
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Minute PDF uploaded successfully.')]);
-
-        return back();
+        return to_route('admin.event.index');
     }
 }

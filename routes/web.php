@@ -14,6 +14,7 @@ Route::controller(FrontendController::class)->group(function () {
     Route::get('/employee', 'employeeList')->name('employee');
     Route::get('/service', 'serviceList')->name('service');
     Route::get('/notice', 'noticeList')->name('notice');
+    Route::get('/events/{event}', 'eventShow')->name('events.show');
 });
 // routes/web.php or routes/api.php
 Route::get('districts/{provinceId}', fn ($id) => District::where('province_id', $id)->get(['id', 'name']));
