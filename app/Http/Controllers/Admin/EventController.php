@@ -95,16 +95,22 @@ class EventController extends Controller
         ]);
     }
     public function uploadMinute(UploadMinuteRequest $request, Event $event)
-    {
+{
+    $data = $request->validated();
 
-        $data = $request->validated();
-        if ($request->hasFile('minutes_pdf')) {
-            deleteFile($event->getRawOriginal('minutes_pdf'));
+    if ($request->hasFile('minutes_pdf')) {
+        $oldFile = $event->getRawOriginal('minutes_pdf');
+        
+        // Only trigger delete if an existing file path actually exists
+        if ($oldFile) {
+            deleteFile($oldFile);
         }
-        $event->update($data);
-
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Event Deleted Successfully')]);
-
-        return to_route('admin.event.index');
     }
+
+    $event->update($data);
+
+    Inertia::flash('toast', ['type' => 'success', 'message' => __('Minute uploaded successfully.')]);
+
+    return to_route('admin.event.index');
+}
 }

@@ -225,7 +225,7 @@ export default function Welcome({ emplyeeReps = [], events = [] }: WelcomeProps)
         {/* RIGHT SIDEBAR */}
         <div className="space-y-5">
           <div className="bg-white/90 backdrop-blur-md p-4 rounded-2xl shadow-sm border border-slate-200">
-            <h3 className="font-bold text-slate-800 text-sm mb-3">Ward Reps & Events</h3>
+            <h3 className="font-bold text-slate-800 text-sm mb-3">Ward Representative</h3>
 
             {/* Dynamic Employee List */}
             {emplyeeReps.map((employee, idx) => (
@@ -239,6 +239,8 @@ export default function Welcome({ emplyeeReps = [], events = [] }: WelcomeProps)
 
             {/* DYNAMIC REAL CALENDAR */}
             <div className="border-t border-slate-200 pt-3 mt-4">
+            <h3 className="font-bold text-slate-800 text-sm mb-3">Public Events</h3>
+
               <div className="flex items-center justify-between mb-3">
                 <h4 className="font-bold text-slate-800 text-xs">
                   {viewDate.toLocaleString('default', { month: 'long', year: 'numeric' })}

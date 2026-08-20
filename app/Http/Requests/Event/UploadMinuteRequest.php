@@ -16,7 +16,7 @@ class UploadMinuteRequest extends FormRequest
 
     public function rules(): array
     {
-        return [
+       return [
             'minutes_pdf' =>  ['required','file','mimes:pdf,jpg,jpeg,png,doc,docx', 'max:10240'],
 
         ];

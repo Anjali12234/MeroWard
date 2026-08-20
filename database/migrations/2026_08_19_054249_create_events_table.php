@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('location');
             $table->dateTime('event_date');
             $table->string('status')->nullable();
+            $table->string('slug')->nullable();
             $table->string('minutes_pdf')->nullable(); 
             $table->softDeletes();
             $table->timestamps();

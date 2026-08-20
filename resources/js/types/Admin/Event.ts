@@ -7,6 +7,7 @@ export type Event = {
     status: string,
     ward_no: string,
     minutes_pdf: string,
+    slug: string,
    
    
 
