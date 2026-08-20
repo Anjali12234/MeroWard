@@ -8,6 +8,7 @@ import { Event } from "@/types/Admin/Event";
 import { uploadMinutePage } from "@/routes/admin";
 
 
+
 export const columns: ColumnDef<Event>[] = [
     {
         accessorKey: "id",

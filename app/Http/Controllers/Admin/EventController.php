@@ -54,6 +54,7 @@ class EventController extends Controller
     }
     public function edit(Event $event)
     {
+        return "hello";
         $statuses = collect(EventStatus::cases())->map(fn($status) => [
             'value' => $status->value,
             'label' => $status->label(),
