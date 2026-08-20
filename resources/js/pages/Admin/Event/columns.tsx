@@ -15,7 +15,7 @@ export const columns: ColumnDef<Event>[] = [
         header: "Id",
         cell: ({ row }) => row.index + 1,
     },
-   
+
     {
         accessorKey: "title",
         header: "Title",
@@ -32,12 +32,13 @@ export const columns: ColumnDef<Event>[] = [
         accessorKey: "status",
         header: "Status",
     },
-    
+
     {
         id: "actions",
         header: "Actions",
         cell: ({ row }) => {
             const event = row.original;
+
             return (
                 <div className="flex gap-2">
                     {/* Edit */}
@@ -47,13 +48,13 @@ export const columns: ColumnDef<Event>[] = [
                         </Link>
                     </Button>
                     <Button variant="outline" size="sm" asChild>
-                        <Link href={edit(event.id).url}>
+                        <Link href={edit(event.slug).url}>
                             <Pencil className="h-4 w-4" />
                         </Link>
                     </Button>
-                   
+
                     <Button variant="outline" size="sm" asChild>
-                        <Link href={show(event.id).url}>
+                        <Link href={show(event.slug).url}>
                             <ScanEye className="h-4 w-4" />
                         </Link>
                     </Button>
@@ -62,7 +63,7 @@ export const columns: ColumnDef<Event>[] = [
                         size="sm"
                         onClick={() => {
                             if (confirm("Are you sure you want to delete this event?")) {
-                                router.delete(destroy(event.id), {
+                                router.delete(destroy(event.slug), {
                                     preserveScroll: true,
                                 });
                             }

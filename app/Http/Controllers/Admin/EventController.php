@@ -24,6 +24,7 @@ class EventController extends Controller
             'event' => $events
         ]);
     }
+
     public function create()
     {
         $statuses = collect(EventStatus::cases())->map(fn($status) => [
@@ -35,26 +36,28 @@ class EventController extends Controller
             'statuses' => $statuses,
         ]);
     }
+
     public function store(StoreEventRequest $request)
     {
         $officeSetting = OfficeSetting::first();
 
         Event::create($request->validated() + [
-            'ward_no' => $officeSetting?->ward, // Safely gets ward_id or null if no record exists
+            'ward_no' => $officeSetting?->ward,  // Safely gets ward_id or null if no record exists
         ]);
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Event Created Successfully.')]);
 
         return to_route('admin.event.index');
     }
+
     public function show(Event $event)
     {
         return Inertia::render('Admin/Event/Show', [
             'event' => $event,
         ]);
     }
+
     public function edit(Event $event)
     {
-        return "hello";
         $statuses = collect(EventStatus::cases())->map(fn($status) => [
             'value' => $status->value,
             'label' => $status->label(),
@@ -64,11 +67,14 @@ class EventController extends Controller
             'statuses' => $statuses,
         ]);
     }
+
     public function update(UpdateEventRequest $request, Event $event)
     {
         $officeSetting = OfficeSetting::first();
 
-        $data = $request->validated() + ['ward_no' => $officeSetting?->ward,];
+        $data = $request->validated() + [
+            'ward_no' => $officeSetting?->ward,
+        ];
         // if you want old minutes_pdf deleted when new one is uploaded
         if ($request->hasFile('minutes_pdf')) {
             deleteFile($event->getRawOriginal('minutes_pdf'));
@@ -78,6 +84,7 @@ class EventController extends Controller
 
         return to_route('admin.event.index');
     }
+
     public function destroy(Event $event)
     {
         $minutePdfPath = $event->getRawOriginal('minutes_pdf');
@@ -89,29 +96,31 @@ class EventController extends Controller
 
         return to_route('admin.event.index');
     }
+
     public function uploadMinutePage(Event $event)
     {
         return Inertia::render('Admin/Event/UploadMinute', [
             'event' => $event
         ]);
     }
+
     public function uploadMinute(UploadMinuteRequest $request, Event $event)
-{
-    $data = $request->validated();
+    {
+        $data = $request->validated();
 
-    if ($request->hasFile('minutes_pdf')) {
-        $oldFile = $event->getRawOriginal('minutes_pdf');
-        
-        // Only trigger delete if an existing file path actually exists
-        if ($oldFile) {
-            deleteFile($oldFile);
+        if ($request->hasFile('minutes_pdf')) {
+            $oldFile = $event->getRawOriginal('minutes_pdf');
+
+            // Only trigger delete if an existing file path actually exists
+            if ($oldFile) {
+                deleteFile($oldFile);
+            }
         }
+
+        $event->update($data);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Minute uploaded successfully.')]);
+
+        return to_route('admin.event.index');
     }
-
-    $event->update($data);
-
-    Inertia::flash('toast', ['type' => 'success', 'message' => __('Minute uploaded successfully.')]);
-
-    return to_route('admin.event.index');
-}
 }
