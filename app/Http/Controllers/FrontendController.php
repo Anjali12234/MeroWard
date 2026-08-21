@@ -23,6 +23,8 @@ class FrontendController extends Controller
         return Inertia::render('welcome', [
             'emplyeeReps' => $emplyeeReps,
             'events' => Event::all(),
+            'notices' => Notice::latest()->take(2)->get(),
+
             
         ]);
     }
@@ -55,6 +57,13 @@ class FrontendController extends Controller
     {
         return Inertia::render('Frontend/eventShow', [
             'event' => $event,
+        ]);
+    }
+     public function eventList()
+    {
+        $events = Event::latest()->get();
+        return Inertia::render('Frontend/event',[
+            'events' => $events,
         ]);
     }
 }

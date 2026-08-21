@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
+import { PageProps } from '@inertiajs/core';
 import EmployeeRep from '@/components/frontend/EmployeeRep';
 import { Employees, Event } from '@/types/Frontend';
 
@@ -11,12 +12,32 @@ interface ServiceItem {
   route: string;
 }
 
+interface OfficeSetting {
+  name?: string;
+  office_google_map?: string;
+}
+
+interface Notice {
+  id: number | string;
+  title_en: string;
+  file_path?: string;
+  document?: string | string[];
+  created_at?: string;
+  category?: string;
+}
+
+interface SharedProps extends PageProps {
+  officeSetting?: OfficeSetting | null;
+}
+
 interface WelcomeProps {
   emplyeeReps: Employees[];
   events: Event[];
+  notices?: Notice[];
 }
 
-export default function Welcome({ emplyeeReps = [], events = [] }: WelcomeProps) {
+export default function Welcome({ emplyeeReps = [], events = [], notices = [] }: WelcomeProps) {
+  const { officeSetting } = usePage<SharedProps>().props;
   const [viewDate, setViewDate] = useState(new Date());
 
   const services: ServiceItem[] = [
@@ -25,10 +46,25 @@ export default function Welcome({ emplyeeReps = [], events = [] }: WelcomeProps)
     { id: 'ward-id', icon: '🆔', title: 'My Ward ID', description: 'Create, view, and update unique ID, large profile area', route: '/ward-id/profile' },
     { id: 'civic', icon: '💬', title: 'Civic Participation', description: 'Meeting check-in form and feedback section, link to trend graph', route: '/civic/participation' },
     { id: 'notices', icon: '🔔', title: 'Ward Notices', description: 'Archived and active, filterable stream', route: '/notice' },
-    { id: 'archives', icon: '📁', title: 'Public Archives', description: 'Full-text searchable minutes, development plans', route: '/archives/public-minutes' },
+    { id: 'event', icon: '📁', title: 'Public Events', description: 'Full-text searchable minutes, development plans', route: '/event' },
   ];
 
-  // Navigation handlers for previous and next months
+  // Map URL Embed Sanitizer
+  const mapUrl = useMemo(() => {
+    const rawUrl = officeSetting?.office_google_map;
+    if (!rawUrl) return null;
+
+    if (rawUrl.includes('google.com/maps/embed') || rawUrl.includes('output=embed')) {
+      return rawUrl;
+    }
+
+    if (rawUrl.includes('maps.google.com') || rawUrl.includes('google.com/maps')) {
+      return `https://maps.google.com/maps?q=${encodeURIComponent(rawUrl)}&output=embed`;
+    }
+
+    return rawUrl;
+  }, [officeSetting?.office_google_map]);
+
   const handlePrevMonth = () => {
     setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1));
   };
@@ -37,18 +73,16 @@ export default function Welcome({ emplyeeReps = [], events = [] }: WelcomeProps)
     setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1));
   };
 
-  // Generate complete calendar grid dates (padding previous month, active month, and next month overflow)
   const calendarGrid = useMemo(() => {
     const year = viewDate.getFullYear();
     const month = viewDate.getMonth();
 
-    const firstDayIndex = new Date(year, month, 1).getDay(); // 0 = Sunday
+    const firstDayIndex = new Date(year, month, 1).getDay();
     const totalDaysInMonth = new Date(year, month + 1, 0).getDate();
     const prevMonthDays = new Date(year, month, 0).getDate();
 
     const days: Array<{ date: Date; isCurrentMonth: boolean }> = [];
 
-    // 1. Previous month trailing days
     for (let i = firstDayIndex - 1; i >= 0; i--) {
       days.push({
         date: new Date(year, month - 1, prevMonthDays - i),
@@ -56,7 +90,6 @@ export default function Welcome({ emplyeeReps = [], events = [] }: WelcomeProps)
       });
     }
 
-    // 2. Current month days
     for (let day = 1; day <= totalDaysInMonth; day++) {
       days.push({
         date: new Date(year, month, day),
@@ -64,8 +97,7 @@ export default function Welcome({ emplyeeReps = [], events = [] }: WelcomeProps)
       });
     }
 
-    // 3. Next month leading days (to fill out 5 or 6 rows of 7 days)
-    const remainingGridCells = 42 - days.length; // Standard 6x7 grid layout
+    const remainingGridCells = 42 - days.length;
     for (let day = 1; day <= remainingGridCells; day++) {
       days.push({
         date: new Date(year, month + 1, day),
@@ -76,7 +108,6 @@ export default function Welcome({ emplyeeReps = [], events = [] }: WelcomeProps)
     return days;
   }, [viewDate]);
 
-  // Exact date comparison helper
   const isSameDay = (d1: Date, d2: Date) => {
     return (
       d1.getFullYear() === d2.getFullYear() &&
@@ -85,7 +116,6 @@ export default function Welcome({ emplyeeReps = [], events = [] }: WelcomeProps)
     );
   };
 
-  // Find event matching precise date string
   const getEventForDate = (cellDate: Date) => {
     return events.find((evt) => {
       if (!evt.event_date) return false;
@@ -102,6 +132,22 @@ export default function Welcome({ emplyeeReps = [], events = [] }: WelcomeProps)
   };
 
   const today = new Date();
+  const latestTwoNotices = notices.slice(0, 2);
+
+  // Helper to resolve downloadable file path
+  const getNoticeFilePath = (notice: Notice): string | null => {
+    if (notice.file_path) return notice.file_path;
+    if (Array.isArray(notice.document) && notice.document.length > 0) return notice.document[0];
+    if (typeof notice.document === 'string') {
+      try {
+        const parsed = JSON.parse(notice.document);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed[0];
+      } catch {
+        return notice.document;
+      }
+    }
+    return null;
+  };
 
   return (
     <div
@@ -150,35 +196,54 @@ export default function Welcome({ emplyeeReps = [], events = [] }: WelcomeProps)
           <section className="bg-slate-200/70 backdrop-blur-md p-5 rounded-2xl border border-white/40 shadow-sm">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-bold text-slate-800">Latest Dynamic Notices</h2>
-              <button className="bg-white/90 px-3 py-1 rounded-lg text-xs font-semibold text-slate-700 border border-slate-300 shadow-sm">
-                Filter
+              <button 
+                onClick={() => router.visit('/notice')}
+                className="bg-white/90 hover:bg-white px-3 py-1 rounded-lg text-xs font-semibold text-slate-700 border border-slate-300 shadow-sm transition"
+              >
+                View All
               </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-start">
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-amber-500 text-xl">🔔</span>
-                    <h4 className="font-bold text-slate-800 text-xs">Community Meeting: Mangsi</h4>
-                  </div>
-                  <button className="bg-sky-800 hover:bg-sky-900 text-white text-[11px] px-3 py-1 rounded-md font-semibold transition">
-                    CTA Now
-                  </button>
+              {latestTwoNotices.length > 0 ? (
+                latestTwoNotices.map((notice) => {
+                  const downloadUrl = getNoticeFilePath(notice);
+                  return (
+                    <div 
+                      key={notice.id} 
+                      className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-start"
+                    >
+                      <div className="space-y-2 pr-2">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-amber-500 text-xl">🔔</span>
+                          <h4 className="font-bold text-slate-800 text-xs line-clamp-2">{notice.title_en}</h4>
+                        </div>
+                        <button 
+                          onClick={() => router.visit(`/notice/${notice.id}`)}
+                          className="bg-sky-800 hover:bg-sky-900 text-white text-[11px] px-3 py-1 rounded-md font-semibold transition"
+                        >
+                          Read More
+                        </button>
+                      </div>
+                      {downloadUrl && (
+                        <a 
+                          href={downloadUrl} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          className="bg-emerald-500 hover:bg-emerald-600 text-white p-1.5 rounded-full text-xs shadow-sm transition flex-shrink-0"
+                          title="Download Attachment"
+                        >
+                          📁
+                        </a>
+                      )}
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="col-span-2 text-center py-4 text-xs text-slate-500 bg-white/50 rounded-xl">
+                  No notices found.
                 </div>
-                <span className="bg-emerald-500 text-white p-1.5 rounded-full text-xs shadow-sm">💬</span>
-              </div>
-
-              <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-start">
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-amber-500 text-xl">🔔</span>
-                    <h4 className="font-bold text-slate-800 text-xs">Monthly Progress Minutes</h4>
-                  </div>
-                  <p className="text-[11px] text-slate-600 font-medium">[Download PDF]</p>
-                </div>
-                <span className="bg-emerald-500 text-white p-1.5 rounded-full text-xs shadow-sm">💬</span>
-              </div>
+              )}
             </div>
           </section>
 
@@ -228,7 +293,6 @@ export default function Welcome({ emplyeeReps = [], events = [] }: WelcomeProps)
           <div className="bg-white/90 backdrop-blur-md p-4 rounded-2xl shadow-sm border border-slate-200">
             <h3 className="font-bold text-slate-800 text-sm mb-3">Ward Representative</h3>
 
-            {/* Dynamic Employee List */}
             {emplyeeReps.map((employee, idx) => (
               <EmployeeRep
                 key={idx}
@@ -238,11 +302,12 @@ export default function Welcome({ emplyeeReps = [], events = [] }: WelcomeProps)
               />
             ))}
 
-            {/* DYNAMIC REAL CALENDAR */}
+            {/* DYNAMIC CALENDAR */}
             <div className="border-t border-slate-200 pt-3 mt-4">
             <h3 className="font-bold text-slate-800 text-sm mb-3">Public Events</h3>
 
               <div className="flex items-center justify-between mb-3">
+
                 <h4 className="font-bold text-slate-800 text-xs">
                   {viewDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
                 </h4>
@@ -295,6 +360,37 @@ export default function Welcome({ emplyeeReps = [], events = [] }: WelcomeProps)
                 })}
               </div>
             </div>
+
+            {/* GOOGLE MAP SECTION */}
+            {mapUrl && (
+              <div className="border-t border-slate-200 pt-3 mt-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-bold text-slate-800 text-xs flex items-center gap-1">
+                    📍 Office Location
+                  </h4>
+                  <a
+                    href={officeSetting?.office_google_map}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[10px] text-sky-600 hover:underline font-semibold"
+                  >
+                    Open in Maps ↗
+                  </a>
+                </div>
+                <div className="w-full h-48 rounded-xl overflow-hidden border border-slate-200 shadow-inner bg-slate-100">
+                  <iframe
+                    src={mapUrl}
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen={false}
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="Office Location Map"
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
