@@ -48,13 +48,13 @@ export const columns: ColumnDef<Event>[] = [
                         </Link>
                     </Button>
                     <Button variant="outline" size="sm" asChild>
-                        <Link href={edit(event.slug).url}>
+                        <Link href={edit(event.id).url}>
                             <Pencil className="h-4 w-4" />
                         </Link>
                     </Button>
 
                     <Button variant="outline" size="sm" asChild>
-                        <Link href={show(event.slug).url}>
+                        <Link href={show(event.id).url}>
                             <ScanEye className="h-4 w-4" />
                         </Link>
                     </Button>
@@ -63,7 +63,7 @@ export const columns: ColumnDef<Event>[] = [
                         size="sm"
                         onClick={() => {
                             if (confirm("Are you sure you want to delete this event?")) {
-                                router.delete(destroy(event.slug), {
+                                router.delete(destroy(event.id), {
                                     preserveScroll: true,
                                 });
                             }

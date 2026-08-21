@@ -22,6 +22,8 @@ class StoreEventRequest extends FormRequest
             'location' => ['required','string', 'max:255'],
             'event_date' => ['required', 'string','max:255'],
             'status' => ['required', 'string','max:255'],
+            'slug' => ['nullable', 'string', 'max:255', 'unique:events,slug'],
+
         ];
     }
 }

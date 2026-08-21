@@ -97,8 +97,7 @@ export default function Welcome({ emplyeeReps = [], events = [] }: WelcomeProps)
   const handleDayClick = (eventItem?: Event) => {
    if (eventItem) {
     // Prefer slug; fallback to ID if slug isn't set
-    const identifier = eventItem.slug || eventItem.id;
-    router.visit(`/events/${identifier}`);
+    router.visit(`/events/${eventItem.slug}`);
   }
   };
 

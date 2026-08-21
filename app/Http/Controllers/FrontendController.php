@@ -20,10 +20,10 @@ class FrontendController extends Controller
             ->orderBy('position', 'asc') // Sorts position 1 first, then position 2
             ->select('id', 'name', 'designation', 'image', 'phone', 'position')
             ->get();
-
         return Inertia::render('welcome', [
             'emplyeeReps' => $emplyeeReps,
             'events' => Event::all(),
+            
         ]);
     }
 
