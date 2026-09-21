@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\NoticeController;
 use App\Http\Controllers\Admin\OfficeSettingController;
+use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\ServiceController;
 use Illuminate\Support\Facades\Route;
 
@@ -21,4 +22,5 @@ Route::post('events/{event}/upload-minute', [EventController::class, 'uploadMinu
 Route::resource('service', ServiceController::class);
 Route::resource('notice', NoticeController::class);
 Route::post('send-mail-to-all/{notice}', [NoticeController::class, 'sendNoticeToAll'])->name('SendMailToUser');
-// Route::put('/admin/service/{service}', [ServiceController::class, 'update'])->name('admin.service.update');
+Route::resource('project', ProjectController::class);
+Route::post('send-mail-of-project/{project}', [ProjectController::class, 'sendNoticeToAll'])->name('SendMailofProject');

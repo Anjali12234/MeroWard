@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('slug');
             $table->string('published_date');
             $table->string('ward_id');
+           
             $table->string('document')->nullable();
 
             $table->softDeletes();

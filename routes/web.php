@@ -16,8 +16,9 @@ Route::controller(FrontendController::class)->group(function () {
     Route::get('/notice', 'noticeList')->name('notice');
     Route::get('/event', 'eventList')->name('event');
     Route::get('/events/{event:slug}', 'eventShow')->name('events.show');
+    Route::get('/projects/{project:slug}', 'projectShow')->name('projects.show');
 });
-// routes/web.php or routes/api.php
+
 Route::get('districts/{provinceId}', fn ($id) => District::where('province_id', $id)->get(['id', 'name']));
 Route::get('local-bodies/{districtId}', fn ($id) => LocalBody::where('district_id', $id)->get(['id', 'name']));
 

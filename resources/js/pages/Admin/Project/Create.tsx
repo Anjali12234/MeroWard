@@ -1,28 +1,96 @@
-import { useState, useEffect } from 'react'
+import { useState, ChangeEvent } from 'react'
 import { Head, Form } from "@inertiajs/react"
 import AppLayout from "@/layouts/app-layout"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Building2, Image as ImageIcon,
-  MailIcon, Phone, UploadCloud, Save, Navigation,
-  UserIcon,
-  NotebookIcon,
-  BuildingIcon,
-  TimerIcon,
-  UserCheckIcon,
-  ArrowLeft
+  Calendar, Save,
+  Type, TimerIcon,
+  UserCheckIcon, ArrowLeft, UploadCloud, X
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import toast from "react-hot-toast"
-import { Employee } from '@/types/Admin/Employee'
-import { index, store } from '@/routes/admin/employee'
+import { Project } from '@/types/Admin/Project'
+import { store, index } from '@/routes/admin/project'
 
-interface EmployeeFormProps {
-  employee?: Employee;
+interface SelectOption {
+  value: string | number;
+  label: string;
 }
+
+interface ProjectFormProps {
+  project?: Project;
+  statuses?: SelectOption[];
+  employees?: SelectOption[];
+}
+
+// Reusable Image Upload Field Component
+const ImageUploadField = ({ name, label, desc, project, errors }: any) => {
+  const [preview, setPreview] = useState<string | null>(project?.image ? `/${project.image}` : null);
+
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const clearImage = () => {
+    setPreview(null);
+    const input = document.getElementById(name) as HTMLInputElement;
+    if (input) input.value = '';
+  };
+
+  return (
+    <div className="space-y-2 md:col-span-2">
+      <Label htmlFor={name} className="text-sm font-medium text-slate-700 flex items-center gap-2">
+        <ImageIcon className="h-4 w-4 text-slate-500" />
+        {label}
+      </Label>
+      
+      <div className="flex items-center gap-6">
+        {preview ? (
+          <div className="relative w-32 h-32 rounded-lg overflow-hidden border border-slate-200 shadow-sm group">
+            <img src={preview} alt="Upload preview" className="w-full h-full object-cover" />
+            <button
+              type="button"
+              onClick={clearImage}
+              className="absolute top-1 right-1 bg-red-500/80 text-white p-1 rounded-full hover:bg-red-600 transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        ) : (
+          <label
+            htmlFor={name}
+            className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-200 rounded-lg cursor-pointer bg-slate-50/50 hover:bg-slate-100/50 transition-colors"
+          >
+            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+              <UploadCloud className="w-8 h-8 mb-2 text-slate-400" />
+              <p className="text-xs text-slate-500 font-medium">Click to upload or drag & drop</p>
+              <p className="text-[11px] text-slate-400 mt-1">{desc}</p>
+            </div>
+          </label>
+        )}
+
+        <input
+          id={name}
+          name={name}
+          type="file"
+          accept="image/*"
+          onChange={handleImageChange}
+          className={preview ? "hidden" : "hidden"}
+        />
+      </div>
+
+      {errors?.[name] && (
+        <p className="text-red-500 text-xs mt-1 font-medium animate-in slide-in-from-top-1">{errors[name]}</p>
+      )}
+    </div>
+  );
+};
 
 // Reusable Input Field Component
 const FormInputField = ({ name, label, icon: Icon, type = "text", placeholder, defaultValue, errors, className = '' }: any) => (
@@ -51,7 +119,7 @@ const FormInputField = ({ name, label, icon: Icon, type = "text", placeholder, d
 );
 
 // Reusable Select Dropdown Field Component
-const FormSelectField = ({ name, label, icon: Icon, defaultValue, options, errors }: any) => (
+const FormSelectField = ({ name, label, icon: Icon, defaultValue, options = [], errors, placeholder = "Select Option" }: any) => (
   <div className="space-y-2">
     <Label htmlFor={name} className="text-sm font-medium text-slate-700 flex items-center gap-2">
       {Icon && <Icon className="h-4 w-4 text-slate-500" />}
@@ -61,10 +129,11 @@ const FormSelectField = ({ name, label, icon: Icon, defaultValue, options, error
       <select
         id={name}
         name={name}
-        defaultValue={defaultValue !== undefined ? String(defaultValue) : "1"}
+        defaultValue={defaultValue !== undefined && defaultValue !== null ? String(defaultValue) : ""}
         className="w-full pl-10 pr-4 h-11 border border-slate-200 rounded-md bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 appearance-none cursor-pointer"
       >
-        {options.map((option: { label: string; value: string | number }) => (
+        <option value="" disabled>{placeholder}</option>
+        {options.map((option: SelectOption) => (
           <option key={option.value} value={option.value}>
             {option.label}
           </option>
@@ -83,67 +152,19 @@ const FormSelectField = ({ name, label, icon: Icon, defaultValue, options, error
   </div>
 );
 
-// Reusable Image Upload Component
-const ImageUploadField = ({ name, label, desc, employee, errors }: any) => {
-  const imageUrl = employee?.[name as keyof Employee];
-
-  return (
-    <div className="space-y-3 group">
-      <Label htmlFor={name} className="text-sm font-medium text-slate-700 block">
-        {label}
-      </Label>
-
-      <div className="relative overflow-hidden rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/50 hover:bg-slate-50 hover:border-blue-400 transition-all duration-300 group-hover:shadow-sm">
-        <Input
-          type="file"
-          name={name}
-          id={name}
-          accept="image/*"
-          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-        />
-
-        <div className="p-6 flex flex-col items-center justify-center text-center">
-          {imageUrl ? (
-            <div className="relative w-full aspect-video mb-4 rounded-lg overflow-hidden shadow-sm ring-1 ring-slate-200">
-              <img
-                src={String(imageUrl)}
-                alt={label}
-                className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
-                <p className="text-white text-sm font-medium flex items-center gap-2">
-                  <UploadCloud className="h-4 w-4" /> Change Image
-                </p>
-              </div>
-            </div>
-          ) : (
-            <div className="mb-4 p-4 rounded-full bg-blue-50 text-blue-500 group-hover:scale-110 transition-transform duration-300">
-              <ImageIcon className="h-8 w-8" />
-            </div>
-          )}
-
-          <div className="space-y-1">
-            <p className="text-sm font-semibold text-slate-700">
-              {imageUrl ? 'Click to replace' : 'Click to upload image'}
-            </p>
-            <p className="text-xs text-slate-500">{desc}</p>
-          </div>
-        </div>
-      </div>
-
-      {errors?.[name] && (
-        <p className="text-red-500 text-xs mt-1 font-medium animate-in slide-in-from-top-1">{errors[name]}</p>
-      )}
-    </div>
-  );
-};
-
-export default function EmployeeForm({ employee }: EmployeeFormProps) {
+export default function ProjectForm({ project, statuses = [], employees = [] }: ProjectFormProps) {
   const handleCancel = () => window.history.back();
+
+  const statusOptions = statuses.length > 0 ? statuses : [
+    { value: 'up_coming', label: 'Up Coming' },
+    { value: 'on_going', label: 'On Going' },
+    { value: 'completed', label: 'Completed' },
+    { value: 'cancelled', label: 'Cancelled' },
+  ];
 
   return (
     <>
-      <Head title="Employee" />
+      <Head title="Project" />
 
       <div className="min-h-full bg-slate-50/50 p-6 md:p-8">
         <div className="max-w-7xl mx-auto space-y-8">
@@ -151,9 +172,9 @@ export default function EmployeeForm({ employee }: EmployeeFormProps) {
           {/* Header Section */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-1">
-              <h1 className="text-3xl font-bold tracking-tight text-slate-900">Employee</h1>
+              <h1 className="text-3xl font-bold tracking-tight text-slate-900">Project</h1>
               <p className="text-slate-500 text-sm md:text-base">
-                Manage your organization's profile, branding, and contact information.
+                Manage the complete project of ward.
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -172,10 +193,10 @@ export default function EmployeeForm({ employee }: EmployeeFormProps) {
           <Form
             action={store().url}
             method="post"
+            encType="multipart/form-data"
             className="space-y-8"
             options={{
               preserveScroll: true,
-              
             }}
           >
             {({ errors }) => (
@@ -189,7 +210,7 @@ export default function EmployeeForm({ employee }: EmployeeFormProps) {
                       </div>
                       <div>
                         <CardTitle className="text-lg font-semibold text-slate-800">Basic Information</CardTitle>
-                        <CardDescription>Enter the core details about your employee.</CardDescription>
+                        <CardDescription>Enter the core details about your Project/Event.</CardDescription>
                       </div>
                     </div>
                   </CardHeader>
@@ -197,77 +218,72 @@ export default function EmployeeForm({ employee }: EmployeeFormProps) {
                   <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                     <ImageUploadField
                       name="image"
-                      label="Profile Image"
+                      label="Project Image"
                       desc="PNG, JPG or JPEG up to 2MB"
-                      employee={employee}
-                      errors={errors}
-                    />
-                    <FormInputField
-                      name="name"
-                      label="Employee Name"
-                      icon={UserIcon}
-                      placeholder="e.g. Ram Bahadur Sapkota"
-                      defaultValue={employee?.name}
-                      errors={errors}
-                    />
-                    <FormInputField
-                      name="email"
-                      label="Email Address"
-                      icon={MailIcon}
-                      type="email"
-                      placeholder="contact@company.com"
-                      defaultValue={employee?.email}
-                      errors={errors}
-                    />
-                    <FormInputField
-                      name="phone"
-                      label="Phone Number"
-                      icon={Phone}
-                      type="tel"
-                      placeholder="+1 (555) 000-0000"
-                      defaultValue={employee?.phone}
-                      errors={errors}
-                    />
-                    <FormInputField
-                      name="designation"
-                      label="Designation"
-                      icon={NotebookIcon}
-                      type="text"
-                      placeholder="CEO"
-                      defaultValue={employee?.designation}
-                      errors={errors}
-                    />
-                    <FormInputField
-                      name="section"
-                      label="Section"
-                      icon={BuildingIcon}
-                      type="text"
-                      placeholder="City Police"
-                      defaultValue={employee?.section}
-                      errors={errors}
-                    />
-                    <FormInputField
-                      name="position"
-                      label="Position"
-                      icon={TimerIcon}
-                      type="number"
-                      placeholder="1"
-                      defaultValue={employee?.position}
+                      project={project}
                       errors={errors}
                     />
 
-                    {/* Added Is Employee Dropdown Field */}
-                    <FormSelectField
-                      name="is_employee"
-                      label="Is Employee"
-                      icon={UserCheckIcon}
-                      defaultValue={employee?.is_employee}
-                      options={[
-                        { label: 'Yes', value: 1 },
-                        { label: 'No', value: 0 },
-                      ]}
+                    <FormInputField
+                      name="title"
+                      label="Title"
+                      icon={Type}
+                      placeholder="e.g. Ward Assembly Meeting"
+                      defaultValue={project?.title}
                       errors={errors}
                     />
+
+                    <FormSelectField
+                      name="employee_id"
+                      label="Supervisor"
+                      icon={UserCheckIcon}
+                      defaultValue={project?.employee_id ?? ''}
+                      options={employees}
+                      placeholder="Select Supervisor"
+                      errors={errors}
+                    />
+
+                    <FormInputField
+                      name="start_date"
+                      label="Start Date"
+                      icon={Calendar}
+                      type="datetime-local"
+                      defaultValue={project?.start_date}
+                      errors={errors}
+                    />
+
+                    <FormInputField
+                      name="finish_date"
+                      label="Finish Date"
+                      icon={Calendar}
+                      type="datetime-local"
+                      defaultValue={project?.finish_date}
+                      errors={errors}
+                    />
+
+                    <FormSelectField
+                      name="status"
+                      label="Status"
+                      icon={TimerIcon}
+                      defaultValue={project?.status ?? 'up_coming'}
+                      options={statusOptions}
+                      placeholder="Select Status"
+                      errors={errors}
+                    />
+
+                    <div className="space-y-2 md:col-span-2">
+                      <Label htmlFor="description" className="text-sm font-medium text-slate-700">Description</Label>
+                      <Textarea
+                        id="description"
+                        name="description"
+                        placeholder="Description"
+                        defaultValue={project?.description}
+                        rows={6}
+                      />
+                      {errors?.description && (
+                        <p className="text-red-500 text-xs mt-1 font-medium animate-in slide-in-from-top-1">{errors.description}</p>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
 
@@ -293,10 +309,10 @@ export default function EmployeeForm({ employee }: EmployeeFormProps) {
 }
 
 // Attach persistent layout
-EmployeeForm.layout = (page: React.ReactNode) => (
+ProjectForm.layout = (page: React.ReactNode) => (
   <AppLayout
     breadcrumbs={[
-      { title: "Employee", href: index().url },
+      { title: "Project", href: index().url },
       { title: "Create/Edit", href: "#" },
     ]}
   >

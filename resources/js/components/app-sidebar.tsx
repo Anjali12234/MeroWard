@@ -21,6 +21,7 @@ import employee from '@/routes/admin/employee';
 import service from '@/routes/admin/service';
 import notice from '@/routes/admin/notice';
 import event from '@/routes/admin/event';
+import project from '@/routes/admin/project';
 
 export function AppSidebar() {
     const page = usePage();
@@ -64,7 +65,7 @@ export function AppSidebar() {
         },
         {
             title: "Project",
-            href: "",
+            href: project.index(),
             icon: BookOpen
         },
     ];

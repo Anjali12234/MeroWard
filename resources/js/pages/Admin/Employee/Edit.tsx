@@ -191,9 +191,7 @@ export default function EmployeeForm({ employee }: EmployeeFormProps) {
             className="space-y-8"
             options={{
               preserveScroll: true,
-              onSuccess: () => {
-                toast.success(isEditing ? 'Employee Updated Successfully' : 'Employee Saved Successfully');
-              },
+              
             }}
           >
             {({ errors }) => (

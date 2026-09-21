@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Employee;
 use App\Models\Event;
 use App\Models\Notice;
+use App\Models\Project;
 use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,15 +18,23 @@ class FrontendController extends Controller
     {
         $emplyeeReps = Employee::query()
             ->whereIn('position', [1, 2])
-            ->orderBy('position', 'asc') // Sorts position 1 first, then position 2
+            ->orderBy('position', 'asc')
             ->select('id', 'name', 'designation', 'image', 'phone', 'position')
             ->get();
+
         return Inertia::render('welcome', [
             'emplyeeReps' => $emplyeeReps,
             'events' => Event::all(),
             'notices' => Notice::latest()->take(2)->get(),
+            'projects' => Project::latest()->get(), // 2. Send Projects to Inertia
+        ]);
+    }
 
-            
+    // Optional: Route method if you want a dedicated public project details view
+    public function projectShow(Project $project): Response
+    {
+        return Inertia::render('Frontend/projectShow', [
+            'project' => $project,
         ]);
     }
 
