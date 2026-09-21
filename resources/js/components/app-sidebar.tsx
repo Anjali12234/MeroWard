@@ -62,6 +62,11 @@ export function AppSidebar() {
             href: event.index(),
             icon: BookOpen
         },
+        {
+            title: "Project",
+            href: "",
+            icon: BookOpen
+        },
     ];
 
     const footerNavItems: NavItem[] = [
