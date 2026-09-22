@@ -30,11 +30,23 @@ class FrontendController extends Controller
         ]);
     }
 
-    // Optional: Route method if you want a dedicated public project details view
     public function projectShow(Project $project): Response
     {
+        // Eager load the employee relationship so $project->employee is included in the JSON output
+        $project->load('employee');
+
         return Inertia::render('Frontend/projectShow', [
             'project' => $project,
+        ]);
+    }
+    public function projectList()
+    {
+        $projects = Project::with('employee')
+            ->latest()
+            ->get();
+
+        return Inertia::render('Frontend/project', [
+            'projects' => $projects,
         ]);
     }
 
@@ -51,15 +63,21 @@ class FrontendController extends Controller
     public function serviceList()
     {
         $services = Service::with('employees')->latest()->get();
-        return Inertia::render('Frontend/service',[
+        return Inertia::render('Frontend/service', [
             'services' => $services,
         ]);
     }
     public function noticeList()
     {
         $notices = Notice::latest()->get();
-        return Inertia::render('Frontend/notice',[
+        return Inertia::render('Frontend/notice', [
             'notices' => $notices,
+        ]);
+    }
+    public function noticeShow(Notice $notice): Response
+    {
+        return Inertia::render('Frontend/noticeShow', [
+            'notice' => $notice,
         ]);
     }
     public function eventShow(Event $event): Response
@@ -68,10 +86,10 @@ class FrontendController extends Controller
             'event' => $event,
         ]);
     }
-     public function eventList()
+    public function eventList()
     {
         $events = Event::latest()->get();
-        return Inertia::render('Frontend/event',[
+        return Inertia::render('Frontend/event', [
             'events' => $events,
         ]);
     }

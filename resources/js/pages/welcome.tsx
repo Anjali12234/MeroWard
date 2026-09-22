@@ -13,17 +13,49 @@ interface ServiceItem {
 }
 
 interface OfficeSetting {
-  name?: string;
+  id?: number;
+  office_name?: string;
+  office_logo?: string;
+  office_cover?: string;
+  office_email?: string;
+  office_phone?: string;
+  desc?: string;
+  office_address?: string;
   office_google_map?: string;
+  facebook?: string;
+  twitter?: string;
+  instagram?: string;
+  youtube?: string;
+  tiktok?: string;
+  province_id?: number;
+  district_id?: number;
+  local_body_id?: number;
+  ward?: string | number;
 }
 
 interface Notice {
   id: number | string;
   title_en: string;
+  slug: string;
   file_path?: string;
   document?: string | string[];
   created_at?: string;
   category?: string;
+}
+
+export interface ProjectItem {
+  id: number | string;
+  title: string;
+  description?: string;
+  slug?: string;
+  image?: any;
+  status?: 'up_coming' | 'on_going' | 'completed' | 'cancelled' | string;
+  start_date?: string;
+  finish_date?: string;
+  employee_id?: number | string;
+  employee?: {
+    name?: string;
+  };
 }
 
 interface SharedProps extends PageProps {
@@ -34,11 +66,20 @@ interface WelcomeProps {
   emplyeeReps: Employees[];
   events: Event[];
   notices?: Notice[];
+  projects?: ProjectItem[];
 }
 
-export default function Welcome({ emplyeeReps = [], events = [], notices = [] }: WelcomeProps) {
+export default function Welcome({
+  emplyeeReps = [],
+  events = [],
+  notices = [],
+  projects = []
+}: WelcomeProps) {
   const { officeSetting } = usePage<SharedProps>().props;
   const [viewDate, setViewDate] = useState(new Date());
+
+  // Project Slider Index State
+  const [currentProjectIndex, setCurrentProjectIndex] = useState(0);
 
   const services: ServiceItem[] = [
     { id: 'citizen-charter', icon: '📄', title: 'Citizen Charter', description: 'Complete detail of the services provided by the ward', route: '/service' },
@@ -49,20 +90,32 @@ export default function Welcome({ emplyeeReps = [], events = [], notices = [] }:
     { id: 'event', icon: '📁', title: 'Public Events', description: 'Full-text searchable minutes, development plans', route: '/event' },
   ];
 
-  // Map URL Embed Sanitizer
+  // Robust Google Maps URL Parser / Sanitizer
   const mapUrl = useMemo(() => {
     const rawUrl = officeSetting?.office_google_map;
     if (!rawUrl) return null;
 
-    if (rawUrl.includes('google.com/maps/embed') || rawUrl.includes('output=embed')) {
-      return rawUrl;
+    const cleanUrl = rawUrl.trim();
+
+    // 1. Extract src if raw <iframe> string was saved to DB
+    if (cleanUrl.includes('<iframe')) {
+      const srcMatch = cleanUrl.match(/src=["']([^"']+)["']/);
+      if (srcMatch && srcMatch[1]) {
+        return srcMatch[1];
+      }
     }
 
-    if (rawUrl.includes('maps.google.com') || rawUrl.includes('google.com/maps')) {
-      return `https://maps.google.com/maps?q=${encodeURIComponent(rawUrl)}&output=embed`;
+    // 2. Direct embed URLs
+    if (cleanUrl.includes('google.com/maps/embed') || cleanUrl.includes('output=embed')) {
+      return cleanUrl;
     }
 
-    return rawUrl;
+    // 3. Standard Google Maps links converted to embed format
+    if (cleanUrl.includes('maps.google.com') || cleanUrl.includes('google.com/maps')) {
+      return `https://maps.google.com/maps?q=${encodeURIComponent(cleanUrl)}&output=embed`;
+    }
+
+    return cleanUrl;
   }, [officeSetting?.office_google_map]);
 
   const handlePrevMonth = () => {
@@ -71,6 +124,64 @@ export default function Welcome({ emplyeeReps = [], events = [], notices = [] }:
 
   const handleNextMonth = () => {
     setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1));
+  };
+
+  // Slider Navigation Handlers
+  const handlePrevProject = () => {
+    if (projects.length === 0) return;
+    setCurrentProjectIndex((prev) => (prev === 0 ? projects.length - 1 : prev - 1));
+  };
+
+  const handleNextProject = () => {
+    if (projects.length === 0) return;
+    setCurrentProjectIndex((prev) => (prev === projects.length - 1 ? 0 : prev + 1));
+  };
+
+  const activeProject = projects.length > 0 ? projects[currentProjectIndex] : null;
+
+  // Safe Image Path Resolver Helper
+  const getImageUrl = (image?: any): string => {
+    const fallbackImage = 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=800&q=80';
+    if (!image) return fallbackImage;
+
+    let imagePath = image;
+
+    if (Array.isArray(image) && image.length > 0) {
+      imagePath = image[0];
+    } else if (typeof image === 'string') {
+      try {
+        const parsed = JSON.parse(image);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          imagePath = parsed[0];
+        }
+      } catch {
+        imagePath = image;
+      }
+    }
+
+    if (typeof imagePath === 'string' && imagePath.trim() !== '') {
+      if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('/')) {
+        return imagePath;
+      }
+      return `/${imagePath}`;
+    }
+
+    return fallbackImage;
+  };
+
+  // Status Badge Component Helper
+  const renderStatusBadge = (status?: string) => {
+    switch (status) {
+      case 'on_going':
+        return <span className="bg-amber-100 text-amber-800 text-[10px] font-semibold px-2.5 py-0.5 rounded-full border border-amber-200 shadow-sm">On Going</span>;
+      case 'completed':
+        return <span className="bg-emerald-100 text-emerald-800 text-[10px] font-semibold px-2.5 py-0.5 rounded-full border border-emerald-200 shadow-sm">Completed</span>;
+      case 'cancelled':
+        return <span className="bg-rose-100 text-rose-800 text-[10px] font-semibold px-2.5 py-0.5 rounded-full border border-rose-200 shadow-sm">Cancelled</span>;
+      case 'up_coming':
+      default:
+        return <span className="bg-blue-100 text-blue-800 text-[10px] font-semibold px-2.5 py-0.5 rounded-full border border-blue-200 shadow-sm">Up Coming</span>;
+    }
   };
 
   const calendarGrid = useMemo(() => {
@@ -125,16 +236,14 @@ export default function Welcome({ emplyeeReps = [], events = [], notices = [] }:
   };
 
   const handleDayClick = (eventItem?: Event) => {
-   if (eventItem) {
-    // Prefer slug; fallback to ID if slug isn't set
-    router.visit(`/events/${eventItem.slug}`);
-  }
+    if (eventItem) {
+      router.visit(`/events/${eventItem.slug}`);
+    }
   };
 
   const today = new Date();
   const latestTwoNotices = notices.slice(0, 2);
 
-  // Helper to resolve downloadable file path
   const getNoticeFilePath = (notice: Notice): string | null => {
     if (notice.file_path) return notice.file_path;
     if (Array.isArray(notice.document) && notice.document.length > 0) return notice.document[0];
@@ -196,7 +305,7 @@ export default function Welcome({ emplyeeReps = [], events = [], notices = [] }:
           <section className="bg-slate-200/70 backdrop-blur-md p-5 rounded-2xl border border-white/40 shadow-sm">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-bold text-slate-800">Latest Dynamic Notices</h2>
-              <button 
+              <button
                 onClick={() => router.visit('/notice')}
                 className="bg-white/90 hover:bg-white px-3 py-1 rounded-lg text-xs font-semibold text-slate-700 border border-slate-300 shadow-sm transition"
               >
@@ -209,8 +318,8 @@ export default function Welcome({ emplyeeReps = [], events = [], notices = [] }:
                 latestTwoNotices.map((notice) => {
                   const downloadUrl = getNoticeFilePath(notice);
                   return (
-                    <div 
-                      key={notice.id} 
+                    <div
+                      key={notice.id}
                       className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-start"
                     >
                       <div className="space-y-2 pr-2">
@@ -218,17 +327,17 @@ export default function Welcome({ emplyeeReps = [], events = [], notices = [] }:
                           <span className="text-amber-500 text-xl">🔔</span>
                           <h4 className="font-bold text-slate-800 text-xs line-clamp-2">{notice.title_en}</h4>
                         </div>
-                        <button 
-                          onClick={() => router.visit(`/notice/${notice.id}`)}
+                        <button
+                          onClick={() => router.visit(`/notices/${notice.slug || notice.id}`)}
                           className="bg-sky-800 hover:bg-sky-900 text-white text-[11px] px-3 py-1 rounded-md font-semibold transition"
                         >
                           Read More
                         </button>
                       </div>
                       {downloadUrl && (
-                        <a 
-                          href={downloadUrl} 
-                          target="_blank" 
+                        <a
+                          href={downloadUrl}
+                          target="_blank"
                           rel="noreferrer"
                           className="bg-emerald-500 hover:bg-emerald-600 text-white p-1.5 rounded-full text-xs shadow-sm transition flex-shrink-0"
                           title="Download Attachment"
@@ -247,44 +356,92 @@ export default function Welcome({ emplyeeReps = [], events = [], notices = [] }:
             </div>
           </section>
 
-          {/* 3. RECENT PROJECTS */}
+          {/* 3. RECENT PROJECTS (SLIDER TYPE) */}
           <section className="bg-slate-200/70 backdrop-blur-md p-5 rounded-2xl border border-white/40 shadow-sm">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold text-slate-800">Recent Projects</h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-bold text-slate-800">Recent Projects</h2>
+                {projects.length > 0 && (
+                  <span className="text-xs text-slate-500 bg-white/60 px-2 py-0.5 rounded-full font-medium border border-slate-200">
+                    {currentProjectIndex + 1} / {projects.length}
+                  </span>
+                )}
+              </div>
               <div className="flex space-x-1">
-                <button className="bg-white/90 px-2.5 py-0.5 rounded-md border border-slate-300 text-xs font-bold text-slate-600">‹</button>
-                <button className="bg-white/90 px-2.5 py-0.5 rounded-md border border-slate-300 text-xs font-bold text-slate-600">›</button>
+                <button
+                  onClick={handlePrevProject}
+                  disabled={projects.length <= 1}
+                  className="bg-white/90 hover:bg-white active:scale-95 disabled:opacity-40 px-2.5 py-0.5 rounded-md border border-slate-300 text-xs font-bold text-slate-600 transition cursor-pointer"
+                  title="Previous Project"
+                >
+                  ‹
+                </button>
+                <button
+                  onClick={handleNextProject}
+                  disabled={projects.length <= 1}
+                  className="bg-white/90 hover:bg-white active:scale-95 disabled:opacity-40 px-2.5 py-0.5 rounded-md border border-slate-300 text-xs font-bold text-slate-600 transition cursor-pointer"
+                  title="Next Project"
+                >
+                  ›
+                </button>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-              <div>
-                <div className="h-32 bg-slate-300 rounded-xl overflow-hidden mb-2 shadow-inner">
-                  <img src="https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=500&q=80" alt="Project 1" className="w-full h-full object-cover" />
+            {activeProject ? (
+              <div
+                onClick={() => router.visit(`/projects/${activeProject.slug || activeProject.id}`)}
+                className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 hover:shadow-md transition-all duration-200 cursor-pointer group grid grid-cols-1 md:grid-cols-3 gap-5 items-center"
+              >
+                {/* Image Banner Container */}
+                <div className="h-44 bg-slate-100 rounded-xl overflow-hidden border border-slate-200/60 shadow-inner relative">
+                  <img
+                    src={getImageUrl(activeProject.image)}
+                    alt={activeProject.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute top-2 left-2">
+                    {renderStatusBadge(activeProject.status)}
+                  </div>
                 </div>
-                <div className="w-full bg-slate-300 h-1.5 rounded-full overflow-hidden">
-                  <div className="bg-emerald-500 h-full w-3/4"></div>
-                </div>
-                <p className="text-[10px] text-slate-500 mt-1 text-right">Progress</p>
-              </div>
 
-              <div>
-                <div className="h-32 bg-slate-300 rounded-xl overflow-hidden mb-2 shadow-inner">
-                  <img src="https://images.unsplash.com/photo-1590069261209-f8e9b8642343?auto=format&fit=crop&w=500&q=80" alt="Project 2" className="w-full h-full object-cover" />
-                </div>
-                <div className="w-full bg-slate-300 h-1.5 rounded-full overflow-hidden">
-                  <div className="bg-emerald-500 h-full w-2/3"></div>
-                </div>
-                <p className="text-[10px] text-slate-500 mt-1 text-right">Progress</p>
-              </div>
+                {/* Details Container */}
+                <div className="md:col-span-2 space-y-3 flex flex-col justify-between h-full py-1">
+                  <div>
+                    <h3 className="font-bold text-slate-800 text-base group-hover:text-sky-700 transition-colors line-clamp-1 mb-1">
+                      {activeProject.title}
+                    </h3>
 
-              <div className="text-xs text-slate-700 space-y-2 pt-1">
-                <h4 className="font-bold text-slate-800 text-sm">Ward Infrastructure Development</h4>
-                <p className="text-[11px] leading-relaxed text-slate-600">
-                  Road upgrades and community hall construction progress details.
-                </p>
+                    {activeProject.employee?.name && (
+                      <p className="text-xs text-slate-500 font-medium mb-2">
+                        Supervisor: <span className="text-slate-700 font-semibold">{activeProject.employee.name}</span>
+                      </p>
+                    )}
+
+                    <p className="text-xs leading-relaxed text-slate-600 line-clamp-3">
+                      {activeProject.description || "No overview description provided for this project."}
+                    </p>
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between mt-auto">
+                    <div className="text-[11px] text-slate-500 space-x-3">
+                      {activeProject.start_date && (
+                        <span>Starts: <strong className="text-slate-700">{activeProject.start_date}</strong></span>
+                      )}
+                      {activeProject.finish_date && (
+                        <span>Ends: <strong className="text-slate-700">{activeProject.finish_date}</strong></span>
+                      )}
+                    </div>
+                    <span className="text-[11px] font-semibold text-sky-600 group-hover:underline">
+                      View Details →
+                    </span>
+                  </div>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="text-center py-8 text-xs text-slate-500 bg-white/50 rounded-2xl border border-dashed border-slate-300">
+                No recent projects available.
+              </div>
+            )}
           </section>
         </div>
 
@@ -304,10 +461,9 @@ export default function Welcome({ emplyeeReps = [], events = [], notices = [] }:
 
             {/* DYNAMIC CALENDAR */}
             <div className="border-t border-slate-200 pt-3 mt-4">
-            <h3 className="font-bold text-slate-800 text-sm mb-3">Public Events</h3>
+              <h3 className="font-bold text-slate-800 text-sm mb-3">Public Events</h3>
 
               <div className="flex items-center justify-between mb-3">
-
                 <h4 className="font-bold text-slate-800 text-xs">
                   {viewDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
                 </h4>
@@ -348,10 +504,10 @@ export default function Welcome({ emplyeeReps = [], events = [], notices = [] }:
                         !item.isCurrentMonth
                           ? 'text-slate-300'
                           : hasEvent
-                          ? 'bg-sky-700 text-white font-bold cursor-pointer hover:bg-sky-800 hover:scale-110 shadow-sm'
-                          : isToday
-                          ? 'border border-sky-600 text-sky-700 font-bold'
-                          : 'text-slate-700 hover:bg-slate-100'
+                            ? 'bg-sky-700 text-white font-bold cursor-pointer hover:bg-sky-800 hover:scale-110 shadow-sm'
+                            : isToday
+                              ? 'border border-sky-600 text-sky-700 font-bold'
+                              : 'text-slate-700 hover:bg-slate-100'
                       }`}
                     >
                       {item.date.getDate()}
@@ -362,21 +518,24 @@ export default function Welcome({ emplyeeReps = [], events = [], notices = [] }:
             </div>
 
             {/* GOOGLE MAP SECTION */}
-            {mapUrl && (
-              <div className="border-t border-slate-200 pt-3 mt-4">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-bold text-slate-800 text-xs flex items-center gap-1">
-                    📍 Office Location
-                  </h4>
+            <div className="border-t border-slate-200 pt-3 mt-4">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-bold text-slate-800 text-xs flex items-center gap-1">
+                  📍 Office Location
+                </h4>
+                {officeSetting?.office_google_map && (
                   <a
-                    href={officeSetting?.office_google_map}
+                    href={officeSetting.office_google_map}
                     target="_blank"
                     rel="noreferrer"
                     className="text-[10px] text-sky-600 hover:underline font-semibold"
                   >
                     Open in Maps ↗
                   </a>
-                </div>
+                )}
+              </div>
+
+              {mapUrl ? (
                 <div className="w-full h-48 rounded-xl overflow-hidden border border-slate-200 shadow-inner bg-slate-100">
                   <iframe
                     src={mapUrl}
@@ -389,8 +548,15 @@ export default function Welcome({ emplyeeReps = [], events = [], notices = [] }:
                     title="Office Location Map"
                   />
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="w-full h-24 rounded-xl border border-dashed border-slate-300 bg-slate-50 flex flex-col items-center justify-center text-center p-2">
+                  <span className="text-base mb-1">🗺️</span>
+                  <p className="text-[11px] text-slate-500 font-medium">
+                    No office location map configured.
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

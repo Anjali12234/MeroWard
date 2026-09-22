@@ -43,7 +43,8 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'name' => config('app.name'),
             'officeSetting' => $officeSetting ? [
-                'name' => $officeSetting->office_name, // Adjust column name if different
+                'name' => $officeSetting->office_name, 
+                'office_google_map' => $officeSetting->office_google_map,
             ] : null,
             'auth' => [
                 'user' => $user,

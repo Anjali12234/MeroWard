@@ -45,5 +45,19 @@ export type Event = {
     slug: string,
     
 }
+export interface Project {
+  id: number | string;
+  slug?: string; // Add slug here
+  title: string;
+  description?: string;
+  image?: any;
+  status?: 'up_coming' | 'on_going' | 'completed' | 'cancelled' | string;
+  start_date?: string;
+  finish_date?: string;
+  employee_id?: number | string;
+  employee?: {
+    name?: string;
+  };
+}
 
 

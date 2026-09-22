@@ -14,8 +14,11 @@ Route::controller(FrontendController::class)->group(function () {
     Route::get('/employee', 'employeeList')->name('employee');
     Route::get('/service', 'serviceList')->name('service');
     Route::get('/notice', 'noticeList')->name('notice');
+    Route::get('/notices/{notice:slug}', 'noticeShow')->name('notices.show');
+
     Route::get('/event', 'eventList')->name('event');
     Route::get('/events/{event:slug}', 'eventShow')->name('events.show');
+    Route::get('/project', 'projectList')->name('project');
     Route::get('/projects/{project:slug}', 'projectShow')->name('projects.show');
 });
 

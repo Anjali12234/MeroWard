@@ -34,8 +34,8 @@ class Employee extends Model
     {
         return $this->belongsToMany(Service::class);
     }
-    public function products(): BelongsToMany
+    public function projects(): BelongsToMany
     {
-        return $this->belongsToMany(Product::class);
+        return $this->belongsToMany(Project::class);
     }
 }
