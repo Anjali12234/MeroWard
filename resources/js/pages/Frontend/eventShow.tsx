@@ -3,7 +3,6 @@ import { Head, router, usePage } from "@inertiajs/react";
 import { PageProps } from "@inertiajs/core";
 import { Event } from "@/types/Frontend";
 
-// Extended props for auth context passed via Inertia middleware
 interface SharedProps extends PageProps {
   auth: {
     citizen?: {
@@ -35,14 +34,12 @@ export default function EventShow({
     }
   };
 
-  // --- RSVP / Event Participation Toggle ---
-  const handleRSVP = () => {
+ const handleRSVP = () => {
+    // 1. If citizen is not logged in, redirect to login page
     if (!auth?.citizen) {
-      // Redirect to citizen login if unauthenticated
-      router.visit("/citizen/login");
+      router.visit("/citizenLogin");
       return;
     }
-
     router.post(
       `/events/${event.id}/participate`,
       {},
@@ -52,7 +49,6 @@ export default function EventShow({
     );
   };
 
-  // Safe resolver to retrieve clean URL string (handles JSON strings/arrays)
   const getMinutesUrl = (fileData?: unknown): string | null => {
     if (!fileData) return null;
 
@@ -78,7 +74,6 @@ export default function EventShow({
 
   const minuteUrl = getMinutesUrl(event?.minutes_pdf);
 
-  // Extract file extension and determine preview type
   const lowerUrl = minuteUrl?.toLowerCase() || "";
   const isPdf = lowerUrl.endsWith(".pdf") || lowerUrl.includes(".pdf");
   const isImage = [".jpg", ".jpeg", ".png", ".webp"].some((ext) =>

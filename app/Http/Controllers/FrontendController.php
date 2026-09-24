@@ -107,11 +107,11 @@ class FrontendController extends Controller
     }
     public function toggleEventParticipation(Event $event)
     {
-        $citizen = Auth::guard('citizen')->user();
-
-        if (!$citizen) {
-            return redirect()->back()->with('error', 'Please login to register for this event.');
+        if (!Auth::guard('citizen')->check()) {
+            return redirect()->route('citizenLoginPage')->with('error', 'Please login to register for this event.');
         }
+
+        $citizen = Auth::guard('citizen')->user();
 
         $exists = $event->citizens()->where('citizen_id', $citizen->id)->exists();
 

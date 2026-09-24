@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdminEventAttendanceController;
 use App\Http\Controllers\Admin\CitizenController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\NoticeController;
@@ -10,7 +11,8 @@ use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\ServiceController;
 use Illuminate\Support\Facades\Route;
 
-Route::inertia('dashboard', 'dashboard')->name('dashboard');
+Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
 Route::resource('office-setting', OfficeSettingController::class);
 Route::resource('citizen', CitizenController::class);
 Route::patch('citizens/{citizen}/status', [CitizenController::class, 'status'])->name('citizens.status');

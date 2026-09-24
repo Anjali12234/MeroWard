@@ -20,7 +20,6 @@ Route::controller(FrontendController::class)->group(function () {
     Route::get('/events/{event:slug}', 'eventShow')->name('events.show');
     Route::get('/project', 'projectList')->name('project');
     Route::get('/projects/{project:slug}', 'projectShow')->name('projects.show');
-    Route::get('/events/{event:slug}', 'eventShow')->name('events.show');
     Route::post('/events/{event}/participate', 'toggleEventParticipation')->name('events.participate');
 });
 

@@ -9,8 +9,8 @@ export default function Navbar() {
                 <Link href="/service" className="hover:text-sky-300 transition whitespace-nowrap">Services</Link>
                 <Link href="/notice" className="hover:text-sky-300 transition whitespace-nowrap">Notices</Link>
                 <Link href="/project" className="hover:text-sky-300 transition whitespace-nowrap">Projects</Link>
-                <Link href="/archives" className="hover:text-sky-300 transition whitespace-nowrap">Public Archives</Link>
-                <Link href="/contact" className="hover:text-sky-300 transition whitespace-nowrap">Contact</Link>
+                <Link href="/event" className="hover:text-sky-300 transition whitespace-nowrap">Public Event</Link>
+                {/* <Link href="/contact" className="hover:text-sky-300 transition whitespace-nowrap">Contact</Link> */}
             </div>
         </nav>
     );
