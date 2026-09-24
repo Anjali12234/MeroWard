@@ -3,7 +3,7 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueue; // 1. Ensure this import is present
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
@@ -11,7 +11,7 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class SendNoticeToAllUser extends Mailable
+class SendNoticeToAllUser extends Mailable implements ShouldQueue // 2. Add 'implements ShouldQueue'
 {
     use Queueable, SerializesModels;
 
@@ -30,12 +30,11 @@ class SendNoticeToAllUser extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            // from:new Address(env('MAIL_FROM_ADDRESS'),env('MAIL_FROM_NAME')),
             from: new Address(
                 config('mail.from.address'),
                 config('mail.from.name')
             ),
-            subject: 'Important Notice from MeroWard',
+            subject: $this->notice->title ?? 'Important Notice from MeroWard',
         );
     }
 
@@ -59,6 +58,13 @@ class SendNoticeToAllUser extends Mailable
      */
     public function attachments(): array
     {
+        // Add document attachment if attached to notice
+        if (!empty($this->notice->document) && file_exists(public_path($this->notice->document))) {
+            return [
+                Attachment::fromPath(public_path($this->notice->document)),
+            ];
+        }
+
         return [];
     }
 }

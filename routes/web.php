@@ -32,6 +32,8 @@ Route::controller(AuthController::class)->group(function () {
     Route::get('/citizenLogin', 'citizenLoginPage')->name('citizenLoginPage');
     Route::post('/citizenLogin', 'citizenLogin')->name('citizenLogin');
     Route::post('/citizenLogout', 'citizenLogout')->name('citizenLogout');
+    Route::get('/citizenProfile', 'profileEdit')->name('citizenProfile.edit');
+    Route::post('/citizenProfile', 'profileUpdate')->name('citizenProfile.update');
 });
 
 require __DIR__ . '/settings.php';

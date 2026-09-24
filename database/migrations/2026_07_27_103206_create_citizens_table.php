@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('user_name');
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('password')->nullable();
             $table->string('whatsapp_number');
             $table->string('phone_number');
             $table->foreignId('province_id')->nullable()->constrained()->cascadeOnDelete();

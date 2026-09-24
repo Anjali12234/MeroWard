@@ -86,40 +86,37 @@ class NoticeController extends Controller
 
     public function sendNoticeToAll(Notice $notice)
     {
-        $users = Citizen::where('ward', $notice->ward_id)
+        // Ensure ward values match properly (e.g., casting or matching exact formats)
+        $users = Citizen::where('ward', (string) $notice->ward_id)
             ->whereNotNull('email')
             ->where('email', '!=', '')
             ->get();
+
+        if ($users->isEmpty()) {
+            return back()->with('error', 'No citizens found registered in this ward.');
+        }
 
         $sent = 0;
         $failed = 0;
 
         foreach ($users as $user) {
             try {
-                Mail::to($user->email)
-                    ->send(new SendNoticeToAllUser($notice));
-
+                // Use queue() instead of send() to dispatch to worker
+               Mail::to($user->email)->queue(new SendNoticeToAllUser($notice));
                 $sent++;
-
-                Log::info('Notice email sent', [
-                    'citizen_id' => $user->id,
-                    'email' => $user->email,
-                    'ward' => $user->ward,
-                ]);
             } catch (\Throwable $e) {
                 $failed++;
-
-                Log::error('Notice email failed', [
+                Log::error('Notice email dispatch failed', [
                     'citizen_id' => $user->id,
-                    'email' => $user->email,
-                    'error' => $e->getMessage(),
+                    'email'      => $user->email,
+                    'error'      => $e->getMessage(),
                 ]);
             }
         }
 
         return back()->with(
             'success',
-            "Notice sent. Sent: {$sent}, Failed: {$failed}."
+            "Notice queued for delivery. Total queued: {$sent}, Failed: {$failed}."
         );
     }
 }

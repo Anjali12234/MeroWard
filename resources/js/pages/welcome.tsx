@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { router, usePage } from '@inertiajs/react';
+import { router, usePage, Link } from '@inertiajs/react';
 import { PageProps } from '@inertiajs/core';
 import EmployeeRep from '@/components/frontend/EmployeeRep';
 import { Employees, Event } from '@/types/Frontend';
@@ -48,7 +48,7 @@ export interface ProjectItem {
   title: string;
   description?: string;
   slug?: string;
-  image?: any;
+  image?: string | string[] | null;
   status?: 'up_coming' | 'on_going' | 'completed' | 'cancelled' | string;
   start_date?: string;
   finish_date?: string;
@@ -63,17 +63,17 @@ interface SharedProps extends PageProps {
 }
 
 interface WelcomeProps {
-  emplyeeReps: Employees[];
-  events: Event[];
+  employeeReps?: Employees[];
+  events?: Event[];
   notices?: Notice[];
   projects?: ProjectItem[];
 }
 
 export default function Welcome({
-  emplyeeReps = [],
+  employeeReps = [],
   events = [],
   notices = [],
-  projects = []
+  projects = [],
 }: WelcomeProps) {
   const { officeSetting } = usePage<SharedProps>().props;
   const [viewDate, setViewDate] = useState(new Date());
@@ -84,7 +84,7 @@ export default function Welcome({
   const services: ServiceItem[] = [
     { id: 'citizen-charter', icon: '📄', title: 'Citizen Charter', description: 'Complete detail of the services provided by the ward', route: '/service' },
     { id: 'employee', icon: '📜', title: 'Employee', description: 'View all employee of ward', route: '/employee' },
-    { id: 'ward-id', icon: '🆔', title: 'My Ward ID', description: 'Create, view, and update unique ID, large profile area', route: '/ward-id/profile' },
+    { id: 'ward-id', icon: '🆔', title: 'My Ward ID', description: 'Create, view, and update unique ID, large profile area', route: 'citizenProfile' },
     { id: 'civic', icon: '💬', title: 'Civic Participation', description: 'Meeting check-in form and feedback section, link to trend graph', route: '/civic/participation' },
     { id: 'notices', icon: '🔔', title: 'Ward Notices', description: 'Archived and active, filterable stream', route: '/notice' },
     { id: 'event', icon: '📁', title: 'Public Events', description: 'Full-text searchable minutes, development plans', route: '/event' },
@@ -140,11 +140,11 @@ export default function Welcome({
   const activeProject = projects.length > 0 ? projects[currentProjectIndex] : null;
 
   // Safe Image Path Resolver Helper
-  const getImageUrl = (image?: any): string => {
+  const getImageUrl = (image?: string | string[] | null): string => {
     const fallbackImage = 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=800&q=80';
     if (!image) return fallbackImage;
 
-    let imagePath = image;
+    let imagePath: string = '';
 
     if (Array.isArray(image) && image.length > 0) {
       imagePath = image[0];
@@ -153,6 +153,8 @@ export default function Welcome({
         const parsed = JSON.parse(image);
         if (Array.isArray(parsed) && parsed.length > 0) {
           imagePath = parsed[0];
+        } else {
+          imagePath = image;
         }
       } catch {
         imagePath = image;
@@ -283,10 +285,10 @@ export default function Welcome({
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {services.map((item) => (
-                <div
+                <Link
                   key={item.id}
-                  onClick={() => router.visit(item.route)}
-                  className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 hover:shadow-md hover:border-sky-400 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer flex flex-col justify-between"
+                  href={item.route}
+                  className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 hover:shadow-md hover:border-sky-400 hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between"
                 >
                   <div>
                     <div className="text-2xl mb-2">{item.icon}</div>
@@ -296,7 +298,7 @@ export default function Welcome({
                   <div className="mt-3 text-[11px] font-semibold text-sky-600 flex items-center">
                     Open Service <span className="ml-1">→</span>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </section>
@@ -305,12 +307,12 @@ export default function Welcome({
           <section className="bg-slate-200/70 backdrop-blur-md p-5 rounded-2xl border border-white/40 shadow-sm">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-bold text-slate-800">Latest Dynamic Notices</h2>
-              <button
-                onClick={() => router.visit('/notice')}
+              <Link
+                href="/notice"
                 className="bg-white/90 hover:bg-white px-3 py-1 rounded-lg text-xs font-semibold text-slate-700 border border-slate-300 shadow-sm transition"
               >
                 View All
-              </button>
+              </Link>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -327,12 +329,12 @@ export default function Welcome({
                           <span className="text-amber-500 text-xl">🔔</span>
                           <h4 className="font-bold text-slate-800 text-xs line-clamp-2">{notice.title_en}</h4>
                         </div>
-                        <button
-                          onClick={() => router.visit(`/notices/${notice.slug || notice.id}`)}
-                          className="bg-sky-800 hover:bg-sky-900 text-white text-[11px] px-3 py-1 rounded-md font-semibold transition"
+                        <Link
+                          href={`/notices/${notice.slug || notice.id}`}
+                          className="inline-block bg-sky-800 hover:bg-sky-900 text-white text-[11px] px-3 py-1 rounded-md font-semibold transition"
                         >
                           Read More
-                        </button>
+                        </Link>
                       </div>
                       {downloadUrl && (
                         <a
@@ -369,6 +371,7 @@ export default function Welcome({
               </div>
               <div className="flex space-x-1">
                 <button
+                  type="button"
                   onClick={handlePrevProject}
                   disabled={projects.length <= 1}
                   className="bg-white/90 hover:bg-white active:scale-95 disabled:opacity-40 px-2.5 py-0.5 rounded-md border border-slate-300 text-xs font-bold text-slate-600 transition cursor-pointer"
@@ -377,6 +380,7 @@ export default function Welcome({
                   ‹
                 </button>
                 <button
+                  type="button"
                   onClick={handleNextProject}
                   disabled={projects.length <= 1}
                   className="bg-white/90 hover:bg-white active:scale-95 disabled:opacity-40 px-2.5 py-0.5 rounded-md border border-slate-300 text-xs font-bold text-slate-600 transition cursor-pointer"
@@ -388,9 +392,9 @@ export default function Welcome({
             </div>
 
             {activeProject ? (
-              <div
-                onClick={() => router.visit(`/projects/${activeProject.slug || activeProject.id}`)}
-                className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 hover:shadow-md transition-all duration-200 cursor-pointer group grid grid-cols-1 md:grid-cols-3 gap-5 items-center"
+              <Link
+                href={`/projects/${activeProject.slug || activeProject.id}`}
+                className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 hover:shadow-md transition-all duration-200 block group grid grid-cols-1 md:grid-cols-3 gap-5 items-center"
               >
                 {/* Image Banner Container */}
                 <div className="h-44 bg-slate-100 rounded-xl overflow-hidden border border-slate-200/60 shadow-inner relative">
@@ -418,7 +422,7 @@ export default function Welcome({
                     )}
 
                     <p className="text-xs leading-relaxed text-slate-600 line-clamp-3">
-                      {activeProject.description || "No overview description provided for this project."}
+                      {activeProject.description || 'No overview description provided for this project.'}
                     </p>
                   </div>
 
@@ -436,7 +440,7 @@ export default function Welcome({
                     </span>
                   </div>
                 </div>
-              </div>
+              </Link>
             ) : (
               <div className="text-center py-8 text-xs text-slate-500 bg-white/50 rounded-2xl border border-dashed border-slate-300">
                 No recent projects available.
@@ -450,9 +454,9 @@ export default function Welcome({
           <div className="bg-white/90 backdrop-blur-md p-4 rounded-2xl shadow-sm border border-slate-200">
             <h3 className="font-bold text-slate-800 text-sm mb-3">Ward Representative</h3>
 
-            {emplyeeReps.map((employee, idx) => (
+            {employeeReps.map((employee, idx) => (
               <EmployeeRep
-                key={idx}
+                key={employee.id || idx}
                 title={employee.name}
                 subtitle={employee.designation}
                 image={employee.image}
@@ -469,6 +473,7 @@ export default function Welcome({
                 </h4>
                 <div className="flex items-center space-x-1">
                   <button
+                    type="button"
                     onClick={handlePrevMonth}
                     className="p-1 text-xs font-bold rounded hover:bg-slate-100 text-slate-600"
                     title="Previous Month"
@@ -476,6 +481,7 @@ export default function Welcome({
                     ‹
                   </button>
                   <button
+                    type="button"
                     onClick={handleNextMonth}
                     className="p-1 text-xs font-bold rounded hover:bg-slate-100 text-slate-600"
                     title="Next Month"
