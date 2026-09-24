@@ -92,7 +92,7 @@ export default function EventForm({ event, statuses }: EventFormProps) {
     const handleCancel = () => window.history.back();
 
     const optionsToUse = statuses && statuses.length > 0 ? statuses : DEFAULT_STATUSES;
-    const targetUrl = isEditing && event ? update({ event: event.slug }).url : store().url;
+    const targetUrl = isEditing && event ? update({ event: event.id }).url : store().url;
 
     return (
         <>

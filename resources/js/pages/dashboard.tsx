@@ -15,8 +15,9 @@ interface DashboardProps {
         title: string;
         event_date: string;
         status: string;
-        citizens_count?: number;
-        total_participants_count?: number;
+        total_present_count?: number;
+        registered_present_count?: number;
+        walkin_present_count?: number;
     }>;
     recentProjects?: Array<{
         id: number;
@@ -73,7 +74,10 @@ export default function Dashboard({ stats, recentEvents = [], recentProjects = [
                         ) : (
                             <div className="divide-y divide-slate-100 dark:divide-slate-800">
                                 {recentEvents.map((event) => {
-                                    const participantCount = event.total_participants_count ?? event.citizens_count ?? 0;
+                                    const totalPresent = event.total_present_count ?? 0;
+                                    const registered = event.registered_present_count ?? 0;
+                                    const walkin = event.walkin_present_count ?? 0;
+
                                     return (
                                         <div key={event.id} className="py-3 flex items-center justify-between text-xs">
                                             <div>
@@ -83,14 +87,22 @@ export default function Dashboard({ stats, recentEvents = [], recentProjects = [
                                                 </p>
                                             </div>
 
-                                            {/* Participant count and Status badges */}
+                                            {/* Attendance Count & Status */}
                                             <div className="flex items-center gap-2">
-                                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 font-medium dark:bg-blue-950 dark:text-blue-300">
-                                                    👥 {participantCount} {participantCount === 1 ? 'person' : 'people'}
-                                                </span>
+                                                <div className="flex items-center gap-1.5">
+                                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 font-medium dark:bg-blue-950 dark:text-blue-300">
+                                                        👥 {totalPresent} {totalPresent === 1 ? 'person' : 'people'}
+                                                    </span>
+
+                                                    {(registered > 0 || walkin > 0) && (
+                                                        <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                                                            ({registered} Reg. | {walkin} Walk-in)
+                                                        </span>
+                                                    )}
+                                                </div>
 
                                                 <span className="px-2 py-1 rounded bg-slate-100 text-slate-600 font-medium capitalize dark:bg-slate-800 dark:text-slate-300">
-                                                    {event.status || 'Up_coming'}
+                                                    {event.status?.replace('_', ' ') || 'Upcoming'}
                                                 </span>
                                             </div>
                                         </div>

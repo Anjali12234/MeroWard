@@ -10,6 +10,7 @@ use App\Http\Requests\Event\UploadMinuteRequest;
 use App\Models\Event;
 use App\Models\OfficeSetting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -51,10 +52,29 @@ class EventController extends Controller
 
     public function show(Event $event)
     {
+       $attendanceStats = DB::table('citizen_event')
+            ->where('event_id', $event->id)
+            ->selectRaw("
+                COUNT(CASE WHEN status = 'attended' THEN 1 END) as total_attended,
+                COUNT(CASE WHEN status = 'attended' AND citizen_id IS NOT NULL THEN 1 END) as registered_attended,
+                COUNT(CASE WHEN status = 'attended' AND citizen_id IS NULL THEN 1 END) as walkin_attended,
+                COUNT(CASE WHEN status = 'registered' THEN 1 END) as total_registered,
+                COUNT(*) as total_entries
+            ")
+            ->first();
+
         return Inertia::render('Admin/Event/Show', [
             'event' => $event,
+            'attendanceStats' => [
+                'total_attended'      => (int) ($attendanceStats->total_attended ?? 0),
+                'registered_attended' => (int) ($attendanceStats->registered_attended ?? 0),
+                'walkin_attended'     => (int) ($attendanceStats->walkin_attended ?? 0),
+                'total_registered'    => (int) ($attendanceStats->total_registered ?? 0),
+                'total_entries'       => (int) ($attendanceStats->total_entries ?? 0),
+            ],
         ]);
     }
+    
 
     public function edit(Event $event)
     {

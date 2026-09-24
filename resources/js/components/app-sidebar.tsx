@@ -1,17 +1,26 @@
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Building2Icon, FolderGit2, LayoutGrid, User } from 'lucide-react';
+import { 
+  LayoutGrid, 
+  Building2, 
+  Users, 
+  UserCheck, 
+  Briefcase, 
+  Bell, 
+  Calendar, 
+  FolderKanban 
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import {
-    Sidebar,
-    SidebarContent,
-    SidebarFooter,
-    SidebarHeader,
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem,
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes/admin';
 import type { NavItem } from '@/types';
@@ -26,7 +35,6 @@ import project from '@/routes/admin/project';
 export function AppSidebar() {
     const page = usePage();
 
-
     const mainNavItems: NavItem[] = [
         {
             title: 'Dashboard',
@@ -36,43 +44,41 @@ export function AppSidebar() {
         {
             title: "Office Settings",
             href: index(),
-            icon: Building2Icon
+            icon: Building2
         },
         {
             title: "Citizen",
             href: citizen.index(),
-            icon: User
+            icon: Users
         },
         {
             title: "Employee",
             href: employee.index(),
-            icon: User
+            icon: UserCheck
         },
         {
             title: "Services",
             href: service.index(),
-            icon: BookOpen
+            icon: Briefcase
         },
         {
             title: "Notice",
             href: notice.index(),
-            icon: BookOpen
+            icon: Bell
         },
         {
             title: "Event",
             href: event.index(),
-            icon: BookOpen
+            icon: Calendar
         },
         {
             title: "Project",
             href: project.index(),
-            icon: BookOpen
+            icon: FolderKanban
         },
     ];
 
-    const footerNavItems: NavItem[] = [
-
-    ];
+    const footerNavItems: NavItem[] = [];
 
     return (
         <Sidebar collapsible="icon" variant="inset">
@@ -86,7 +92,6 @@ export function AppSidebar() {
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
-
             </SidebarHeader>
 
             <SidebarContent>

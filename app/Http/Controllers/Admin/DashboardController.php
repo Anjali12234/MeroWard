@@ -9,41 +9,53 @@ use App\Models\Event;
 use App\Models\Notice;
 use App\Models\Project;
 use App\Models\Service;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
-    // In DashboardController.php
-
     public function index()
     {
         $stats = [
-            'total_citizens' => Citizen::count(),
+            'total_citizens'  => Citizen::count(),
             'total_employees' => Employee::count(),
-            'total_services' => Service::count(),
-            'total_notices' => Notice::count(),
-            'total_events' => Event::count(),
-            'total_projects' => Project::count(),
+            'total_services'  => Service::count(),
+            'total_notices'   => Notice::count(),
+            'total_events'    => Event::count(),
+            'total_projects'  => Project::count(),
         ];
 
-        // Fetches registered citizens count AND includes walk-in guests directly from pivot table
-        $recentEvents = Event::withCount([
-            'citizens',
-            'citizens as total_participants_count' => function ($query) {
-                // Counts all rows in citizen_event pivot table including walk-ins where citizen_id is null
-                $query->select(\Illuminate\Support\Facades\DB::raw('count(*)'));
-            }
-        ])
-        ->latest()
-        ->take(5)
-        ->get();
+        // Fetch recent events with raw subqueries looking for status = 'attended'
+        $recentEvents = Event::select('events.*')
+            ->selectSub(function ($query) {
+                $query->from('citizen_event')
+                    ->whereColumn('citizen_event.event_id', 'events.id')
+                    ->where('status', 'attended')
+                    ->selectRaw('count(*)');
+            }, 'total_present_count')
+            ->selectSub(function ($query) {
+                $query->from('citizen_event')
+                    ->whereColumn('citizen_event.event_id', 'events.id')
+                    ->where('status', 'attended')
+                    ->whereNotNull('citizen_id')
+                    ->selectRaw('count(*)');
+            }, 'registered_present_count')
+            ->selectSub(function ($query) {
+                $query->from('citizen_event')
+                    ->whereColumn('citizen_event.event_id', 'events.id')
+                    ->where('status', 'attended')
+                    ->whereNull('citizen_id')
+                    ->selectRaw('count(*)');
+            }, 'walkin_present_count')
+            ->latest()
+            ->take(5)
+            ->get();
 
         $recentProjects = Project::latest()->take(5)->get();
 
         return Inertia::render('dashboard', [
-            'stats' => $stats,
-            'recentEvents' => $recentEvents,
+            'stats'          => $stats,
+            'recentEvents'   => $recentEvents,
             'recentProjects' => $recentProjects,
         ]);
     }

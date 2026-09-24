@@ -5,16 +5,26 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   ArrowLeft, Edit, Calendar, MapPin, 
-  FileText, Activity, Clock, Paperclip, Download, ExternalLink, FileIcon
+  FileText, Activity, Clock, Paperclip, Download, ExternalLink, FileIcon,
+  Users, UserCheck, UserPlus, ClipboardList
 } from "lucide-react";
 import { Event } from "@/types/Admin/Event";
 import { edit, index } from "@/routes/admin/event";
 
-interface EventShowProps {
-  event: Event;
+interface AttendanceStats {
+  total_attended: number;
+  registered_attended: number;
+  walkin_attended: number;
+  total_registered: number;
+  total_entries: number;
 }
 
-export default function EventShow({ event }: EventShowProps) {
+interface EventShowProps {
+  event: Event;
+  attendanceStats?: AttendanceStats;
+}
+
+export default function EventShow({ event, attendanceStats }: EventShowProps) {
   const handleBack = () => window.history.back();
 
   // Helper for status badge formatting
@@ -43,13 +53,11 @@ export default function EventShow({ event }: EventShowProps) {
 
     if (typeof fileData === "string") {
       let trimmed = fileData.trim();
-      // Handle array strings saved in DB like ["minutes/file.pdf"]
       if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
         try {
           const parsed = JSON.parse(trimmed);
           trimmed = Array.isArray(parsed) && parsed.length > 0 ? parsed[0] : "";
         } catch {
-          // Fallback regex extract if invalid JSON
           trimmed = trimmed.replace(/[\[\]\\"]/g, "");
         }
       }
@@ -78,6 +86,12 @@ export default function EventShow({ event }: EventShowProps) {
   const isPdf = lowerUrl.endsWith(".pdf") || lowerUrl.includes(".pdf");
   const isImage = [".jpg", ".jpeg", ".png", ".webp"].some((ext) => lowerUrl.endsWith(ext));
 
+  // Attendance stat fallbacks
+  const totalAttended = attendanceStats?.total_attended ?? 0;
+  const registeredAttended = attendanceStats?.registered_attended ?? 0;
+  const walkinAttended = attendanceStats?.walkin_attended ?? 0;
+  const totalRegistered = attendanceStats?.total_registered ?? 0;
+
   return (
     <>
       <Head title={`Event - ${event?.title ?? "Details"}`} />
@@ -104,7 +118,7 @@ export default function EventShow({ event }: EventShowProps) {
                 </Badge>
               </div>
               <p className="text-muted-foreground text-sm">
-                View detailed information and attached minute documents for this event
+                View detailed information, attendance counts, and attached minute documents
               </p>
             </div>
           </div>
@@ -183,6 +197,63 @@ export default function EventShow({ event }: EventShowProps) {
                 </h3>
                 <div className="mt-2 text-sm text-slate-700 leading-relaxed bg-slate-50 p-4 rounded-lg border border-slate-100 whitespace-pre-line">
                   {event?.description || "No description provided."}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Attendance & Participation Summary Card */}
+          <Card className="border-slate-200 shadow-sm">
+            <CardHeader className="border-b border-slate-100 bg-white/50 pb-4">
+              <CardTitle className="text-base font-semibold text-slate-800 flex items-center gap-2">
+                <Users className="h-4 w-4 text-emerald-600" />
+                Participation & Attendance Summary
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="p-4 rounded-xl border border-emerald-100 bg-emerald-50/50">
+                  <div className="flex items-center justify-between text-emerald-700">
+                    <span className="text-xs font-semibold uppercase tracking-wider">Total Attended</span>
+                    <Users className="h-4 w-4" />
+                  </div>
+                  <div className="mt-2 text-2xl font-bold text-emerald-900">
+                    {totalAttended}
+                  </div>
+                  <p className="mt-1 text-[11px] text-emerald-600">Marked present</p>
+                </div>
+
+                <div className="p-4 rounded-xl border border-blue-100 bg-blue-50/50">
+                  <div className="flex items-center justify-between text-blue-700">
+                    <span className="text-xs font-semibold uppercase tracking-wider">Registered</span>
+                    <UserCheck className="h-4 w-4" />
+                  </div>
+                  <div className="mt-2 text-2xl font-bold text-blue-900">
+                    {registeredAttended}
+                  </div>
+                  <p className="mt-1 text-[11px] text-blue-600">Pre-registered citizens</p>
+                </div>
+
+                <div className="p-4 rounded-xl border border-purple-100 bg-purple-50/50">
+                  <div className="flex items-center justify-between text-purple-700">
+                    <span className="text-xs font-semibold uppercase tracking-wider">Walk-ins</span>
+                    <UserPlus className="h-4 w-4" />
+                  </div>
+                  <div className="mt-2 text-2xl font-bold text-purple-900">
+                    {walkinAttended}
+                  </div>
+                  <p className="mt-1 text-[11px] text-purple-600">Offline / non-registered</p>
+                </div>
+
+                <div className="p-4 rounded-xl border border-amber-100 bg-amber-50/50">
+                  <div className="flex items-center justify-between text-amber-700">
+                    <span className="text-xs font-semibold uppercase tracking-wider">Pending RSVPs</span>
+                    <ClipboardList className="h-4 w-4" />
+                  </div>
+                  <div className="mt-2 text-2xl font-bold text-amber-900">
+                    {totalRegistered}
+                  </div>
+                  <p className="mt-1 text-[11px] text-amber-600">Registered, not checked-in</p>
                 </div>
               </div>
             </CardContent>

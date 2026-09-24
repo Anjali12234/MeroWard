@@ -48,12 +48,14 @@ export const columns: ColumnDef<Event>[] = [
                         </Link>
                     </Button>
 
-                    {/* Upload Minutes */}
-                    <Button variant="outline" size="sm" asChild title="Upload Minutes">
-                        <Link href={uploadMinutePage(event.id).url}>
-                            <Plus className="h-4 w-4" />
-                        </Link>
-                    </Button>
+                    {/* Upload Minutes - Only visible when event status is 'completed' */}
+                    {event.status === "completed" && (
+                        <Button variant="outline" size="sm" asChild title="Upload Minutes">
+                            <Link href={uploadMinutePage(event.id).url}>
+                                <Plus className="h-4 w-4" />
+                            </Link>
+                        </Button>
+                    )}
 
                     {/* Edit Event */}
                     <Button variant="outline" size="sm" asChild title="Edit Event">
