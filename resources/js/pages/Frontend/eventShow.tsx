@@ -1,18 +1,55 @@
 import React from "react";
-import { Head, router } from "@inertiajs/react";
+import { Head, router, usePage } from "@inertiajs/react";
+import { PageProps } from "@inertiajs/core";
 import { Event } from "@/types/Frontend";
+
+// Extended props for auth context passed via Inertia middleware
+interface SharedProps extends PageProps {
+  auth: {
+    citizen?: {
+      id: number;
+      user_name: string;
+      email: string;
+    } | null;
+  };
+}
 
 interface EventShowProps {
   event: Event;
+  isRegistered?: boolean;
+  totalRegistered?: number;
 }
 
-export default function EventShow({ event }: EventShowProps) {
+export default function EventShow({
+  event,
+  isRegistered = false,
+  totalRegistered = 0,
+}: EventShowProps) {
+  const { auth } = usePage<SharedProps>().props;
+
   const handleBack = () => {
     if (window.history.length > 1) {
       window.history.back();
     } else {
       router.visit("/");
     }
+  };
+
+  // --- RSVP / Event Participation Toggle ---
+  const handleRSVP = () => {
+    if (!auth?.citizen) {
+      // Redirect to citizen login if unauthenticated
+      router.visit("/citizen/login");
+      return;
+    }
+
+    router.post(
+      `/events/${event.id}/participate`,
+      {},
+      {
+        preserveScroll: true,
+      }
+    );
   };
 
   // Safe resolver to retrieve clean URL string (handles JSON strings/arrays)
@@ -44,7 +81,9 @@ export default function EventShow({ event }: EventShowProps) {
   // Extract file extension and determine preview type
   const lowerUrl = minuteUrl?.toLowerCase() || "";
   const isPdf = lowerUrl.endsWith(".pdf") || lowerUrl.includes(".pdf");
-  const isImage = [".jpg", ".jpeg", ".png", ".webp"].some((ext) => lowerUrl.endsWith(ext));
+  const isImage = [".jpg", ".jpeg", ".png", ".webp"].some((ext) =>
+    lowerUrl.endsWith(ext)
+  );
 
   const getFileName = (url?: string | null) => {
     if (url) {
@@ -84,7 +123,7 @@ export default function EventShow({ event }: EventShowProps) {
         }}
       >
         <div className="max-w-4xl mx-auto space-y-6">
-          {/* Top Bar Navigation */}
+          {/* Top Bar Navigation & RSVP Header Bar */}
           <div className="flex items-center justify-between">
             <button
               onClick={handleBack}
@@ -92,30 +131,52 @@ export default function EventShow({ event }: EventShowProps) {
             >
               ← Back
             </button>
-            <span
-              className={`text-xs px-3 py-1 rounded-full font-bold border ${getStatusBadgeStyle(
-                event?.status
-              )}`}
-            >
-              {formatStatus(event?.status)}
-            </span>
+
+            <div className="flex items-center gap-3">
+              <span className="text-xs px-3 py-1 bg-white/90 text-slate-700 font-bold rounded-full border border-slate-200 shadow-sm">
+                👥 Registered: {totalRegistered}
+              </span>
+              <span
+                className={`text-xs px-3 py-1 rounded-full font-bold border ${getStatusBadgeStyle(
+                  event?.status
+                )}`}
+              >
+                {formatStatus(event?.status)}
+              </span>
+            </div>
           </div>
 
           {/* Main Content Card */}
           <div className="bg-white/95 backdrop-blur-md rounded-2xl p-6 sm:p-8 shadow-md border border-white/60 space-y-6">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-sky-600 mb-1">
-                Event Details
-              </p>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
-                {event?.title || "Untitled Event"}
-              </h1>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-sky-600 mb-1">
+                  Event Details
+                </p>
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
+                  {event?.title || "Untitled Event"}
+                </h1>
+              </div>
+
+              {/* SINGLE CLICK RSVP BUTTON */}
+              <button
+                onClick={handleRSVP}
+                className={`px-5 py-2.5 rounded-xl text-xs font-bold transition shadow-sm flex items-center justify-center gap-2 shrink-0 ${
+                  isRegistered
+                    ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                    : "bg-sky-600 hover:bg-sky-700 text-white"
+                }`}
+              >
+                {isRegistered ? "✓ Registered (Click to Cancel)" : "Register / Participate"}
+              </button>
             </div>
 
             {/* Event Meta Information */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-slate-100 text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
               <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
-                <p className="text-xs font-medium text-slate-500 uppercase">Date & Time</p>
+                <p className="text-xs font-medium text-slate-500 uppercase">
+                  Date & Time
+                </p>
                 <p className="mt-1 font-semibold text-slate-800">
                   {event?.event_date
                     ? new Date(event.event_date).toLocaleString(undefined, {
@@ -127,7 +188,9 @@ export default function EventShow({ event }: EventShowProps) {
               </div>
 
               <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
-                <p className="text-xs font-medium text-slate-500 uppercase">Location / Venue</p>
+                <p className="text-xs font-medium text-slate-500 uppercase">
+                  Location / Venue
+                </p>
                 <p className="mt-1 font-semibold text-slate-800">
                   {event?.location || "Ward Office / Public Hall"}
                 </p>
@@ -140,7 +203,8 @@ export default function EventShow({ event }: EventShowProps) {
                 Agenda & Description
               </h3>
               <div className="bg-slate-50/80 p-4 rounded-xl border border-slate-200/60 text-slate-700 text-sm leading-relaxed whitespace-pre-line">
-                {event?.description || "No specific details provided for this event."}
+                {event?.description ||
+                  "No specific details provided for this event."}
               </div>
             </div>
 

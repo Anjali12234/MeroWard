@@ -82,8 +82,20 @@ class FrontendController extends Controller
     }
     public function eventShow(Event $event): Response
     {
+        $citizen = Auth::guard('citizen')->user();
+        $isRegistered = false;
+
+        if ($citizen) {
+            $isRegistered = $event->citizens()->where('citizen_id', $citizen->id)->exists();
+        }
+
+        // Count total online registrations
+        $totalRegistered = $event->citizens()->count();
+
         return Inertia::render('Frontend/eventShow', [
             'event' => $event,
+            'isRegistered' => $isRegistered,
+            'totalRegistered' => $totalRegistered,
         ]);
     }
     public function eventList()
@@ -93,4 +105,28 @@ class FrontendController extends Controller
             'events' => $events,
         ]);
     }
+    public function toggleEventParticipation(Event $event)
+    {
+        $citizen = Auth::guard('citizen')->user();
+
+        if (!$citizen) {
+            return redirect()->back()->with('error', 'Please login to register for this event.');
+        }
+
+        $exists = $event->citizens()->where('citizen_id', $citizen->id)->exists();
+
+        if ($exists) {
+            $event->citizens()->detach($citizen->id);
+            $message = 'You have cancelled your registration for this event.';
+        } else {
+            $event->citizens()->attach($citizen->id, [
+                'status' => 'registered',
+                'registration_type' => 'online',
+            ]);
+            $message = 'You have successfully registered for this event!';
+        }
+
+        return redirect()->back()->with('success', $message);
+    }
+    
 }

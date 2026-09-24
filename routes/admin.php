@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminEventAttendanceController;
 use App\Http\Controllers\Admin\CitizenController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\EventController;
@@ -24,3 +25,7 @@ Route::resource('notice', NoticeController::class);
 Route::post('send-mail-to-all/{notice}', [NoticeController::class, 'sendNoticeToAll'])->name('SendMailToUser');
 Route::resource('project', ProjectController::class);
 Route::post('send-mail-of-project/{project}', [ProjectController::class, 'sendNoticeToAll'])->name('SendMailofProject');
+
+Route::get('/events/{event}/attendance', [AdminEventAttendanceController::class, 'index'])->name('events.attendance.index');
+    Route::patch('/event/attendance/{pivotId}', [AdminEventAttendanceController::class, 'updateStatus'])->name('events.attendance.update');
+    Route::post('/events/{event}/walk-in', [AdminEventAttendanceController::class, 'storeWalkIn'])->name('events.attendance.walkin');

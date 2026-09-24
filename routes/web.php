@@ -20,10 +20,12 @@ Route::controller(FrontendController::class)->group(function () {
     Route::get('/events/{event:slug}', 'eventShow')->name('events.show');
     Route::get('/project', 'projectList')->name('project');
     Route::get('/projects/{project:slug}', 'projectShow')->name('projects.show');
+    Route::get('/events/{event:slug}', 'eventShow')->name('events.show');
+    Route::post('/events/{event}/participate', 'toggleEventParticipation')->name('events.participate');
 });
 
-Route::get('districts/{provinceId}', fn ($id) => District::where('province_id', $id)->get(['id', 'name']));
-Route::get('local-bodies/{districtId}', fn ($id) => LocalBody::where('district_id', $id)->get(['id', 'name']));
+Route::get('districts/{provinceId}', fn($id) => District::where('province_id', $id)->get(['id', 'name']));
+Route::get('local-bodies/{districtId}', fn($id) => LocalBody::where('district_id', $id)->get(['id', 'name']));
 
 Route::controller(AuthController::class)->group(function () {
     Route::get('/citizenRegister', 'citizenRegisterPage')->name('citizenRegister');
@@ -33,4 +35,4 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('/citizenLogout', 'citizenLogout')->name('citizenLogout');
 });
 
-require __DIR__.'/settings.php';
+require __DIR__ . '/settings.php';

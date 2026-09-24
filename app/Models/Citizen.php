@@ -54,4 +54,10 @@ class Citizen extends Authenticatable
     {
         return $this->belongsTo(District::class);
     }
+    public function events()
+    {
+        return $this->belongsToMany(Event::class, 'citizen_event')
+            ->withPivot('id', 'status', 'registration_type', 'remarks', 'created_at')
+            ->withTimestamps();
+    }
 }

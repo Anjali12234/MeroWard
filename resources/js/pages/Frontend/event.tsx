@@ -1,26 +1,26 @@
 import React, { useState, useMemo } from 'react';
 import { Head, Link } from '@inertiajs/react';
 import { 
-  Search, FileText, Calendar, Globe, ExternalLink, Download, Paperclip 
+  Search, FileText, Calendar, Globe, ExternalLink, Download, Paperclip, Eye 
 } from 'lucide-react';
 
 export interface Event {
-   id: number;
-    title: string,
-    description: string,
-    location: string,
-    event_date: string,
-    status: string,
-    ward_no: string,
-    minutes_pdf: string,
-    slug: string,
+  id: number;
+  title: string;
+  description: string;
+  location: string;
+  event_date: string;
+  status: string;
+  ward_no: string;
+  minutes_pdf: string | string[];
+  slug: string;
 }
 
 interface EventIndexProps {
   events: Event[];
 }
 
-export default function eventIndex({ events = [] }: EventIndexProps) {
+export default function EventIndex({ events = [] }: EventIndexProps) {
   const [searchTerm, setSearchTerm] = useState('');
 
   // Helper to determine file type category
@@ -41,9 +41,9 @@ export default function eventIndex({ events = [] }: EventIndexProps) {
       const term = searchTerm.toLowerCase();
       const matchesTitle = event.title?.toLowerCase().includes(term);
       const matchesEventDate = event.event_date?.toLowerCase().includes(term);
-      const matcheStatus = event.status?.toLowerCase().includes(term);
+      const matchesStatus = event.status?.toLowerCase().includes(term);
 
-      return matchesTitle || matchesEventDate || matcheStatus;
+      return matchesTitle || matchesEventDate || matchesStatus;
     });
   }, [events, searchTerm]);
 
@@ -92,7 +92,7 @@ export default function eventIndex({ events = [] }: EventIndexProps) {
                         <Globe className="w-3.5 h-3.5" /> Title
                       </div>
                     </th>
-                    <th className="py-3.5 px-4 w-1/3 border-r border-sky-800">
+                    <th className="py-3.5 px-4 w-1/4 border-r border-sky-800">
                       <div className="flex items-center gap-1.5">
                         <FileText className="w-3.5 h-3.5" /> Location
                       </div>
@@ -102,10 +102,14 @@ export default function eventIndex({ events = [] }: EventIndexProps) {
                         <Calendar className="w-3.5 h-3.5" /> Event Date
                       </div>
                     </th>
-                    <th className="py-3.5 px-4 text-center">
+                    <th className="py-3.5 px-4 border-r border-sky-800 text-center">
                       <div className="flex items-center justify-center gap-1.5">
                         <Paperclip className="w-3.5 h-3.5" /> Attachments
                       </div>
+                    </th>
+                    {/* NEW COLUMN HEADER */}
+                    <th className="py-3.5 px-4 text-center w-32">
+                      Action
                     </th>
                   </tr>
                 </thead>
@@ -121,12 +125,12 @@ export default function eventIndex({ events = [] }: EventIndexProps) {
                             {index + 1}
                           </td>
 
-                          {/* English Title */}
+                          {/* Title */}
                           <td className="py-4 px-4 font-bold text-slate-900 align-top border-r border-slate-100">
                             {event.title || <span className="text-slate-400 italic">N/A</span>}
                           </td>
 
-                          {/* Nepali Title */}
+                          {/* Location */}
                           <td className="py-4 px-4 font-medium text-slate-800 align-top border-r border-slate-100">
                             {event.location || <span className="text-slate-400 italic">N/A</span>}
                           </td>
@@ -143,7 +147,7 @@ export default function eventIndex({ events = [] }: EventIndexProps) {
                           </td>
 
                           {/* Attachments / Action Downloads */}
-                          <td className="py-4 px-4 align-top">
+                          <td className="py-4 px-4 align-top border-r border-slate-100">
                             {minutesPdf.length > 0 ? (
                               <div className="space-y-2">
                                 {minutesPdf.map((fileUrl, docIdx) => {
@@ -170,7 +174,7 @@ export default function eventIndex({ events = [] }: EventIndexProps) {
                                           target="_blank"
                                           rel="noopener noreferrer"
                                           className="p-1.5 text-slate-600 hover:text-sky-600 hover:bg-sky-50 rounded transition-colors"
-                                          title="View minutes_pdf"
+                                          title="View file"
                                         >
                                           <ExternalLink className="w-3.5 h-3.5" />
                                         </a>
@@ -178,7 +182,7 @@ export default function eventIndex({ events = [] }: EventIndexProps) {
                                           href={fileUrl}
                                           download
                                           className="p-1.5 text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded transition-colors"
-                                          title="Download minutes_pdf"
+                                          title="Download file"
                                         >
                                           <Download className="w-3.5 h-3.5" />
                                         </a>
@@ -193,12 +197,23 @@ export default function eventIndex({ events = [] }: EventIndexProps) {
                               </div>
                             )}
                           </td>
+
+                          {/* NEW ACTION COLUMN */}
+                          <td className="py-4 px-4 align-top text-center">
+                            <Link
+                              href={`/events/${event.slug || event.id}`}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-xs font-medium shadow-sm transition-colors"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                              View
+                            </Link>
+                          </td>
                         </tr>
                       );
                     })
                   ) : (
                     <tr>
-                      <td colSpan={5} className="py-12 text-center text-slate-400 text-xs">
+                      <td colSpan={6} className="py-12 text-center text-slate-400 text-xs">
                         No events found matching your search query.
                       </td>
                     </tr>

@@ -38,4 +38,10 @@ class Event extends Model
     {
         return $this->castingFile(defaultPath: 'event', fileToDelete: $this->attributes['minutes_pdf'] ?? null);
     }
+    public function citizens()
+    {
+        return $this->belongsToMany(Citizen::class, 'citizen_event')
+                    ->withPivot('id', 'status', 'registration_type', 'guest_name', 'guest_phone', 'guest_ward', 'remarks', 'created_at')
+                    ->withTimestamps();
+    }
 }
