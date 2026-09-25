@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('ward_id');
             $table->string('description');
             $table->string('image')->nullable();
-            $table->boolean('status')->nullable();
+            $table->string('status')->nullable();
             $table->boolean('notice')->default(0);
             $table->string('finish_date')->nullable();
             $table->softDeletes();
