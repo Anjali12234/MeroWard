@@ -13,9 +13,9 @@ export default function Footer() {
                 <div>
                     <h4 className="text-white font-bold text-sm mb-2">Quick Links</h4>
                     <ul className="space-y-1 text-[11px]">
-                        <li><a href="/services" className="hover:underline">Ward Fee Chart</a></li>
-                        <li><a href="/notices" className="hover:underline">Public Minutes & Agenda</a></li>
-                        <li><a href="/projects" className="hover:underline">Ward Projects Tracker</a></li>
+                        <li><a href="/service" className="hover:underline">Ward Fee Chart</a></li>
+                        <li><a href="/notice" className="hover:underline">Public Minutes & Agenda</a></li>
+                        <li><a href="/project" className="hover:underline">Ward Projects Tracker</a></li>
                     </ul>
                 </div>
                 <div>

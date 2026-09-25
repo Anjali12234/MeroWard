@@ -60,6 +60,13 @@ export interface ProjectItem {
 
 interface SharedProps extends PageProps {
   officeSetting?: OfficeSetting | null;
+  auth?: {
+    citizen?: {
+      id: number;
+      user_name: string;
+      email: string;
+    } | null;
+  };
 }
 
 interface WelcomeProps {
@@ -75,26 +82,48 @@ export default function Welcome({
   notices = [],
   projects = [],
 }: WelcomeProps) {
-  const { officeSetting } = usePage<SharedProps>().props;
-  const [viewDate, setViewDate] = useState(new Date());
+  // Extract auth alongside officeSetting
+  const { officeSetting, auth } = usePage<SharedProps>().props;
+
+  // Calendar state initialized to current date
+  const [viewDate, setViewDate] = useState<Date>(new Date());
 
   // Project Slider Index State
   const [currentProjectIndex, setCurrentProjectIndex] = useState(0);
 
-  const services: ServiceItem[] = [
-    { id: 'citizen-charter', icon: '📄', title: 'Citizen Charter', description: 'Complete detail of the services provided by the ward', route: '/service' },
-    { id: 'employee', icon: '📜', title: 'Employee', description: 'View all employee of ward', route: '/employee' },
-    { id: 'ward-id', icon: '🆔', title: 'My Ward ID', description: 'Create, view, and update unique ID, large profile area', route: '/profile' },
-    {
-      id: 'sifarish',
-      icon: '📝',
-      title: 'Online Sifarish',
-      description: 'Apply for official ward recommendations, personal certificates, and civic verification online',
-      route: '/https://sifarish.nepalgunjmun.gov.np/citizens'
-    },
-    { id: 'notices', icon: '🔔', title: 'Ward Notices', description: 'Archived and active, filterable stream', route: '/notice' },
-    { id: 'event', icon: '📁', title: 'Public Events', description: 'Full-text searchable minutes, development plans', route: '/event' },
-  ];
+  // Handler for Ward ID / Profile navigation
+  const handleWardIdClick = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent default Link navigation
+
+    if (!auth?.citizen) {
+      router.visit('/citizenLogin');
+    } else {
+      router.visit('/citizenProfile');
+    }
+  };
+
+  const serviceRoutes = useMemo<ServiceItem[]>(() => {
+    return [
+      { id: 'citizen-charter', icon: '📄', title: 'Citizen Charter', description: 'Complete detail of the services provided by the ward', route: '/service' },
+      { id: 'employee', icon: '📜', title: 'Employee', description: 'View all employee of ward', route: '/employee' },
+      {
+        id: 'ward-id',
+        icon: '🆔',
+        title: 'My Ward ID',
+        description: 'Create, view, and update unique ID, large profile area',
+        route: auth?.citizen ? '/citizenProfile' : '/citizenLogin'
+      },
+      {
+        id: 'sifarish',
+        icon: '📝',
+        title: 'Online Sifarish',
+        description: 'Apply for official ward recommendations, personal certificates, and civic verification online',
+        route: 'https://sifarish.nepalgunjmun.gov.np/citizens'
+      },
+      { id: 'notices', icon: '🔔', title: 'Ward Notices', description: 'Archived and active, filterable stream', route: '/notice' },
+      { id: 'event', icon: '📁', title: 'Public Events', description: 'Full-text searchable minutes, development plans', route: '/event' },
+    ];
+  }, [auth?.citizen]);
 
   // Robust Google Maps URL Parser / Sanitizer
   const mapUrl = useMemo(() => {
@@ -290,22 +319,48 @@ export default function Welcome({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {services.map((item) => (
-                <Link
-                  key={item.id}
-                  href={item.route}
-                  className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 hover:shadow-md hover:border-sky-400 hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="text-2xl mb-2">{item.icon}</div>
-                    <h3 className="font-bold text-slate-800 text-sm">{item.title}</h3>
-                    <p className="text-xs text-slate-500 mt-1 leading-snug">{item.description}</p>
-                  </div>
-                  <div className="mt-3 text-[11px] font-semibold text-sky-600 flex items-center">
-                    Open Service <span className="ml-1">→</span>
-                  </div>
-                </Link>
-              ))}
+              {serviceRoutes.map((item) => {
+                const isExternal = item.route.startsWith('http://') || item.route.startsWith('https://');
+
+                if (isExternal) {
+                  return (
+                    <a
+                      key={item.id}
+                      href={item.route}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 hover:shadow-md hover:border-sky-400 hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between"
+                    >
+                      <div>
+                        <div className="text-2xl mb-2">{item.icon}</div>
+                        <h3 className="font-bold text-slate-800 text-sm">{item.title}</h3>
+                        <p className="text-xs text-slate-500 mt-1 leading-snug">{item.description}</p>
+                      </div>
+                      <div className="mt-3 text-[11px] font-semibold text-sky-600 flex items-center">
+                        Open Service <span className="ml-1">→</span>
+                      </div>
+                    </a>
+                  );
+                }
+
+                return (
+                  <Link
+                    key={item.id}
+                    href={item.route}
+                    onClick={item.id === 'ward-id' ? handleWardIdClick : undefined}
+                    className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 hover:shadow-md hover:border-sky-400 hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="text-2xl mb-2">{item.icon}</div>
+                      <h3 className="font-bold text-slate-800 text-sm">{item.title}</h3>
+                      <p className="text-xs text-slate-500 mt-1 leading-snug">{item.description}</p>
+                    </div>
+                    <div className="mt-3 text-[11px] font-semibold text-sky-600 flex items-center">
+                      Open Service <span className="ml-1">→</span>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </section>
 
@@ -513,12 +568,12 @@ export default function Welcome({
                       onClick={() => handleDayClick(eventOnDay)}
                       title={hasEvent ? `Event: ${eventOnDay?.title}` : undefined}
                       className={`py-0.5 rounded-full mx-auto w-6 h-6 flex items-center justify-center transition-all ${!item.isCurrentMonth
-                          ? 'text-slate-300'
-                          : hasEvent
-                            ? 'bg-sky-700 text-white font-bold cursor-pointer hover:bg-sky-800 hover:scale-110 shadow-sm'
-                            : isToday
-                              ? 'border border-sky-600 text-sky-700 font-bold'
-                              : 'text-slate-700 hover:bg-slate-100'
+                        ? 'text-slate-300'
+                        : hasEvent
+                          ? 'bg-sky-700 text-white font-bold cursor-pointer hover:bg-sky-800 hover:scale-110 shadow-sm'
+                          : isToday
+                            ? 'border border-sky-600 text-sky-700 font-bold'
+                            : 'text-slate-700 hover:bg-slate-100'
                         }`}
                     >
                       {item.date.getDate()}
