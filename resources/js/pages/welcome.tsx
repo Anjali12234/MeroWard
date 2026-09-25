@@ -84,8 +84,14 @@ export default function Welcome({
   const services: ServiceItem[] = [
     { id: 'citizen-charter', icon: '📄', title: 'Citizen Charter', description: 'Complete detail of the services provided by the ward', route: '/service' },
     { id: 'employee', icon: '📜', title: 'Employee', description: 'View all employee of ward', route: '/employee' },
-    { id: 'ward-id', icon: '🆔', title: 'My Ward ID', description: 'Create, view, and update unique ID, large profile area', route: 'citizenProfile' },
-    { id: 'civic', icon: '💬', title: 'Civic Participation', description: 'Meeting check-in form and feedback section, link to trend graph', route: '/civic/participation' },
+    { id: 'ward-id', icon: '🆔', title: 'My Ward ID', description: 'Create, view, and update unique ID, large profile area', route: '/profile' },
+    {
+      id: 'sifarish',
+      icon: '📝',
+      title: 'Online Sifarish',
+      description: 'Apply for official ward recommendations, personal certificates, and civic verification online',
+      route: '/https://sifarish.nepalgunjmun.gov.np/citizens'
+    },
     { id: 'notices', icon: '🔔', title: 'Ward Notices', description: 'Archived and active, filterable stream', route: '/notice' },
     { id: 'event', icon: '📁', title: 'Public Events', description: 'Full-text searchable minutes, development plans', route: '/event' },
   ];
@@ -506,15 +512,14 @@ export default function Welcome({
                       key={idx}
                       onClick={() => handleDayClick(eventOnDay)}
                       title={hasEvent ? `Event: ${eventOnDay?.title}` : undefined}
-                      className={`py-0.5 rounded-full mx-auto w-6 h-6 flex items-center justify-center transition-all ${
-                        !item.isCurrentMonth
+                      className={`py-0.5 rounded-full mx-auto w-6 h-6 flex items-center justify-center transition-all ${!item.isCurrentMonth
                           ? 'text-slate-300'
                           : hasEvent
                             ? 'bg-sky-700 text-white font-bold cursor-pointer hover:bg-sky-800 hover:scale-110 shadow-sm'
                             : isToday
                               ? 'border border-sky-600 text-sky-700 font-bold'
                               : 'text-slate-700 hover:bg-slate-100'
-                      }`}
+                        }`}
                     >
                       {item.date.getDate()}
                     </div>

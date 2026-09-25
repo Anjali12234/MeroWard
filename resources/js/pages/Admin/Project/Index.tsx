@@ -34,7 +34,7 @@ export default function ProjectIndex({ projects }: Props) {
                     <Button asChild>
                         <Link href={create().url} className="flex items-center gap-2">
                             <Plus className="h-4 w-4" />
-                            Create Notice
+                            Create Project
                         </Link>
                     </Button>
                 </div>
